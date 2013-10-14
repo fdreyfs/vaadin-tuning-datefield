@@ -149,7 +149,7 @@ public class TuningDateFieldDemoUI extends UI {
 
         HorizontalLayout tuningDateFieldOddEventLayout = new HorizontalLayout();
         tuningDateFieldOddEventLayout.setSpacing(true);
-        tuningDateFieldOddEventLayout.setCaption("TuningDateField with dataSource");
+        tuningDateFieldOddEventLayout.setCaption("TuningDateField with odd/even days style");
         TuningDateField tuningDateFieldOddEvent = new TuningDateField();
         tuningDateFieldOddEvent.setCellItemCustomizer(new CellItemCustomizerAdapter() {
             @Override
@@ -159,6 +159,7 @@ public class TuningDateFieldDemoUI extends UI {
         });
 
         tuningDateFieldOddEventLayout.addComponent(tuningDateFieldOddEvent);
+        layout.addComponent(tuningDateFieldOddEventLayout);
 
     }
 
