@@ -1,0 +1,9 @@
+@import "addons.scss";
+@import "tuning_datefield_demo.scss";
+
+/* This file prefixes all rules with the theme name to avoid causing conflicts with other themes. */
+/* The actual styles should be defined in tuning_datefield_demo.scss */
+.tuning_datefield_demo {
+  @include addons;
+  @include tuning_datefield_demo;
+}
