@@ -18,7 +18,6 @@ package org.vaadin.addons.tuningdatefield;
 
 import java.lang.reflect.Method;
 import java.text.DateFormatSymbols;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -660,7 +659,9 @@ public class TuningDateField extends AbstractField<String> {
                 style.append("selected ");
             }
 
-            // FIXME missing isYearEnabled
+            if (isYearEnabled(year)) {
+                calendarItems[i].setEnabled(true);
+            }
 
             if (cellItemCustomizer != null) {
                 String generatedStyle = cellItemCustomizer.getStyle(year, this);
@@ -807,9 +808,10 @@ public class TuningDateField extends AbstractField<String> {
                 fireEvent(new MonthChangeEvent(this, selectedMonth));
             }
         } else if (calendarResolution.equals(CalendarResolution.YEAR)) {
-            // FIXME : isYearEnabled
-            setYearMonthDisplayed(new YearMonth(relativeDateIndex, getYearMonthDisplayed().getMonthOfYear()));
-            setCalendarResolution(CalendarResolution.MONTH);
+            if(isYearEnabled(relativeDateIndex)) {
+                setYearMonthDisplayed(new YearMonth(relativeDateIndex, getYearMonthDisplayed().getMonthOfYear()));
+                setCalendarResolution(CalendarResolution.MONTH);    
+            }
         }
     }
 
@@ -858,14 +860,29 @@ public class TuningDateField extends AbstractField<String> {
     }
 
     /**
-     * Returns true if month is enabled. Default implementations returns monthCustomizer value if any.
+     * Returns true if month is enabled. Default implementations returns {@link CellItemCustomizer} value if any.
      * 
      * @param yearMonth
+     *            the month
      * @return true if month is enabled.
      */
     protected boolean isMonthEnabled(YearMonth yearMonth) {
         if (cellItemCustomizer != null) {
             return cellItemCustomizer.isEnabled(yearMonth, this);
+        }
+        return true;
+    }
+
+    /**
+     * Returns true if year is enabled. Default implementations returns {@link CellItemCustomizer} value if any.
+     * 
+     * @param year
+     *            the year
+     * @return true if year is enabled.
+     */
+    protected boolean isYearEnabled(int year) {
+        if (cellItemCustomizer != null) {
+            return cellItemCustomizer.isEnabled(year, this);
         }
         return true;
     }
