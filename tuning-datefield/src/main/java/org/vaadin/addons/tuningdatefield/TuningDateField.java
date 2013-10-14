@@ -383,12 +383,12 @@ public class TuningDateField extends AbstractField<String> {
      * Sets the date range of this tuningDateField
      * 
      * @param startDate
-     *            the start date (included)
+     *            the start date (included). <code>null</code> for unlimited
      * @param endDate
-     *            the end date (included)
+     *            the end date (included). <code>null</code> for unlimited
      */
     public void setDateRange(LocalDate startDate, LocalDate endDate, String errorMessage) {
-        if (endDate.isBefore(startDate)) {
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
             throw new IllegalArgumentException("Cannot have a date range with end date " + endDate
                     + " before start date " + startDate);
         }
@@ -808,9 +808,9 @@ public class TuningDateField extends AbstractField<String> {
                 fireEvent(new MonthChangeEvent(this, selectedMonth));
             }
         } else if (calendarResolution.equals(CalendarResolution.YEAR)) {
-            if(isYearEnabled(relativeDateIndex)) {
+            if (isYearEnabled(relativeDateIndex)) {
                 setYearMonthDisplayed(new YearMonth(relativeDateIndex, getYearMonthDisplayed().getMonthOfYear()));
-                setCalendarResolution(CalendarResolution.MONTH);    
+                setCalendarResolution(CalendarResolution.MONTH);
             }
         }
     }
