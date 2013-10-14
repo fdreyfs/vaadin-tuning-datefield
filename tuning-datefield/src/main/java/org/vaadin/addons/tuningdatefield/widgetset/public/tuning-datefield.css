@@ -1,0 +1,92 @@
+ 
+.tuning-datefield-calendar {	
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	
+	border: 1px solid #d9d8cb; 
+	
+	background-color: white;
+	
+	padding: 4px;
+}
+
+.tuning-datefield-calendar td, 
+.tuning-datefield-calendar th {
+	text-align: center;
+	width: 20px;
+	height: 20px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	background: white;
+	padding: 4px 5px;
+}
+
+.tuning-datefield-calendar .controls {
+	font-weight: bold;
+	text-transform:capitalize;
+}
+
+.tuning-datefield-calendar .controls td:hover {
+	background: #eeeeee;
+	cursor: pointer;
+}
+
+.tuning-datefield-calendar .enabled:hover {
+	background: #eeeeee;
+	cursor: pointer;
+}
+
+.tuning-datefield-calendar .selected,
+.tuning-datefield-calendar .selected:hover{
+	color: #ffffff;
+	background-color: #0044cc;
+	background-image: linear-gradient(to bottom, #0088cc, #0044cc);
+	background-repeat: repeat-x;
+}
+
+.tuning-datefield-calendar .now {
+	border: 1px solid orange;
+}
+
+/* ********************************* */
+/* Styles for DAY resolution */
+/* ********************************* */
+
+.tuning-datefield-calendar .day.disabled {
+	color: #999999;
+}
+
+.tuning-datefield-calendar .daynames {
+	font-weight: bold;
+}
+
+.tuning-datefield-calendar .weekend {
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+	border-radius: 0px;
+	background: rgba(245, 245, 245, 0.6);
+	color: #999999;
+}
+
+
+/* ********************************* */
+/* Styles for MONTH resolution */
+/* ********************************* */
+
+.tuning-datefield-calendar .month {
+	width: 47px;
+	height: 54px;
+	font-size: 14px;
+	text-transform:capitalize;
+}
+
+/* ********************************* */
+/* Styles for YEAR resolution */
+/* ********************************* */
+.tuning-datefield-calendar .year {
+	width: 47px;
+	height: 54px;
+	font-size: 14px;
+}
