@@ -4,10 +4,17 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>tuning-datefield</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<packaging>jar</packaging>
-
 	<name>Tuning DateField Add-on</name>
+	<inceptionYear>2013</inceptionYear>
+
+	<organization>
+		<name>Frederic Dreyfus</name>
+		<url>https://github.com/fdreyfs</url>
+	</organization>
+
+	<url>https://github.com/fdreyfs/vaadin-tuning-datefield</url>
 
 	<repositories>
 		<repository>
@@ -28,10 +35,16 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.organization>Frederic Dreyfus</project.organization>
 		<vaadin.version>7.1.4</vaadin.version>
-		<gwt.version>2.3.0</gwt.version>
-		<gwt.plugin.version>2.2.0</gwt.plugin.version>
 	</properties>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
 
 	<dependencies>
 
@@ -45,36 +58,15 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
 			<version>${vaadin.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-client-compiled</artifactId>
-			<version>${vaadin.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-themes</artifactId>
-			<version>${vaadin.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client</artifactId>
 			<version>${vaadin.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-client-compiler</artifactId>
-			<scope>provided</scope>
-			<version>${vaadin.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<resources>
 			<resource>
@@ -112,7 +104,7 @@
 						</manifest>
 						<manifestEntries>
 							<Vaadin-Package-Version>1</Vaadin-Package-Version>
-							<Implementation-Title>Vaadin Tuning DateField Add-On</Implementation-Title>
+							<Implementation-Title>Tuning DateField</Implementation-Title>
 							<Vaadin-Widgetsets>org.vaadin.addons.tuningdatefield.widgetset.TuningDateFieldWidgetset</Vaadin-Widgetsets>
 						</manifestEntries>
 					</archive>

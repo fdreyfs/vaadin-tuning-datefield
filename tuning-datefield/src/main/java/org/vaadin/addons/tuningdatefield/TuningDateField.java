@@ -106,7 +106,8 @@ import com.vaadin.util.ReflectTools;
  * </p>
  * 
  * <p>
- * The primary stylename of the calendar is </code>tuning-datefield-calendar</code><br /><br />
+ * The primary stylename of the calendar is </code>tuning-datefield-calendar</code><br />
+ * <br />
  * 
  * CSS styles for calendar {@link CalendarResolution#DAY} :
  * <ul>
@@ -171,6 +172,7 @@ public class TuningDateField extends AbstractField<String> {
     private boolean defaultDateTimeFormatter = true;
     // Internal uses : the following 4 values are computed once at init and if the locale changes.
     private String[] monthTexts; // Jan, Feb, Mar
+    private String[] shortMonthTexts; // Jan, Feb, Mar
     private String[] weekDayNames; // Sun, Mon, Tue, ...
     private int firstDayOfWeek; // 1 in France (monday), 7 in the US (sunday)
     private int lastDayOfWeek; // 7 in France (sunday), 6 in the US (saturday)
@@ -232,11 +234,11 @@ public class TuningDateField extends AbstractField<String> {
         initConverter();
         setYearMonthDisplayed(YearMonth.now());
         registerTuningDateFieldRpc();
-        
+
         addValueChangeListener(new ValueChangeListener() {
-            
+
             private static final long serialVersionUID = -8632906562585439165L;
-            
+
             @Override
             public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
                 fireEvent(new DateChangeEvent(TuningDateField.this, (LocalDate) getConvertedValue()));
@@ -322,7 +324,6 @@ public class TuningDateField extends AbstractField<String> {
 
             @Override
             public void dateTextChanged(String dateText) {
-                System.err.println("dateTextChanged ->" + dateText);
                 setValue(dateText);
             }
 
@@ -373,6 +374,7 @@ public class TuningDateField extends AbstractField<String> {
             dateTimeFormatter = DateTimeFormat.shortDate().withLocale(locale);
         }
         monthTexts = new DateFormatSymbols(locale).getMonths();
+        shortMonthTexts = new DateFormatSymbols(locale).getShortMonths();
         firstDayOfWeek = getFirstDayOfWeek(locale);
         lastDayOfWeek = getLastDayOfWeek(locale);
         weekDayNames = getWeekDayNames(locale);
@@ -581,7 +583,6 @@ public class TuningDateField extends AbstractField<String> {
         int numberOfMonths = Months.monthsBetween(calendarFirstMonth, calendarLastMonth).getMonths() + 1;
 
         CalendarItem[] calendarItems = new CalendarItem[numberOfMonths];
-        String[] monthTexts = DateFormatSymbols.getInstance(getLocale()).getShortMonths();
         YearMonth month = calendarFirstMonth;
         LocalDate currentValue = getLocalDate();
         YearMonth currentYearMonthValue = currentValue == null ? null : new YearMonth(currentValue.getYear(),
@@ -625,7 +626,7 @@ public class TuningDateField extends AbstractField<String> {
                 calendarItems[i].setStyle(computedStyle);
             }
 
-            calendarItems[i].setText(monthTexts[i]);
+            calendarItems[i].setText(shortMonthTexts[i]);
         }
         return calendarItems;
     }
@@ -768,35 +769,6 @@ public class TuningDateField extends AbstractField<String> {
 
     private YearMonth getSelectedMonth(int monthOfYear) {
         return new YearMonth(yearDisplayed, monthOfYear);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(Days.daysBetween(new LocalDate(2013, 10, 1), new LocalDate(2013, 10, 1)).getDays());
-        System.out.println(Days.daysBetween(new LocalDate(2013, 10, 1), new LocalDate(2013, 10, 31)).getDays());
-
-        TuningDateField calendar = new TuningDateField();
-        calendar.setYearMonthDisplayed(new YearMonth(2013, DateTimeConstants.SEPTEMBER));
-
-        calendar.setLocale(Locale.FRANCE);
-        System.out.println("getCalendarFirstDay=" + calendar.getCalendarFirstDay());
-        System.out.println("getCalendarLastDay=" + calendar.getCalendarLastDay());
-
-        System.out.println("\n");
-
-        calendar.setLocale(Locale.US);
-        System.out.println("getCalendarFirstDay=" + calendar.getCalendarFirstDay());
-        System.out.println("getCalendarLastDay=" + calendar.getCalendarLastDay());
-
-        System.out.println(calendar.getLastDayOfWeek(Locale.FRANCE));
-        System.out.println(calendar.getLastDayOfWeek(Locale.US));
-
-        System.out.println(Arrays.toString(DateFormatSymbols.getInstance(Locale.FRANCE).getShortWeekdays()));
-        System.out.println(Arrays.toString(DateFormatSymbols.getInstance(Locale.US).getShortWeekdays()));
-        System.out.println(DateFormatSymbols.getInstance(Locale.FRANCE).getShortWeekdays()[Calendar.SUNDAY]);
-
-        System.out.println(Arrays.toString(calendar.getWeekDayNames(Locale.FRANCE)));
-        System.out.println(Arrays.toString(calendar.getWeekDayNames(Locale.US)));
-
     }
 
     /**
@@ -951,7 +923,7 @@ public class TuningDateField extends AbstractField<String> {
         }
         return ((calendar.getFirstDayOfWeek() + 4) % 7) + 1;
     }
-    
+
     public static final Method DATE_CHANGE_METHOD = ReflectTools.findMethod(DateChangeListener.class, "dateChange",
             DateChangeEvent.class);
 
@@ -973,7 +945,7 @@ public class TuningDateField extends AbstractField<String> {
     public void removeMonthChangeListener(MonthChangeListener listener) {
         removeListener(MonthChangeEvent.class, listener, MONTH_CHANGE_METHOD);
     }
-    
+
     public static final Method YEAR_CHANGE_METHOD = ReflectTools.findMethod(YearChangeListener.class, "yearChange",
             YearChangeEvent.class);
 
