@@ -1,0 +1,9 @@
+@import "addons.scss";
+@import "demo_reindeer.scss";
+
+/* This file prefixes all rules with the theme name to avoid causing conflicts with other themes. */
+/* The actual styles should be defined in tuning_datefield_demo.scss */
+.demo_reindeer {
+  @include addons;
+  @include demo_reindeer;
+}

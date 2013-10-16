@@ -4,19 +4,40 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	id="WebApp_ID" version="3.0">
 
-	<display-name>TuningDateField Demo</display-name>
-	<description>TuningDateField Demo</description>
+	<display-name>Vaadin Tuning DateField Demo</display-name>
+	<description>Vaadin Tuning DateField Demo</description>
 
-	<welcome-file-list>
-		<welcome-file>/app/</welcome-file>
-	</welcome-file-list>
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>
 
-	<error-page>
-		<error-code>404</error-code>
-		<location>/404.jsp</location>
-	</error-page>
+	<context-param>
+		<param-name>productionMode</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	
+	<servlet>
+		<servlet-name>DemoServlet</servlet-name>
+		<servlet-class>org.vaadin.addons.tuningdatefield.demo.DemoWebAppInitializer$MyServlet</servlet-class>
+		<init-param>
+			<param-name>application</param-name>
+			<param-value>tuning-datefield</param-value>
+		</init-param>
+		<init-param>
+			<param-name>UIProvider</param-name>
+			<param-value>org.vaadin.addons.tuningdatefield.demo.TuningDateFieldUIProvider</param-value>
+		</init-param>
+		<init-param>
+			<param-name>widgetset</param-name>
+			<param-value>org.vaadin.addons.tuningdatefield.demo.widgetset.TuningDateFieldDemoWidgetset</param-value>
+		</init-param>
+		<async-supported>true</async-supported>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>DemoServlet</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+
 
 </web-app>

@@ -31,7 +31,7 @@
 		<vaadin.version>7.1.4</vaadin.version>
 		<gwt.version>2.3.0</gwt.version>
 		<gwt.plugin.version>2.2.0</gwt.plugin.version>
-		<tuning-datefield.version>0.2.0</tuning-datefield.version>
+		<tuning-datefield.version>0.3.0</tuning-datefield.version>
 	</properties>
 
 	<dependencies>
@@ -61,12 +61,23 @@
 			<artifactId>vaadin-client-compiler</artifactId>
 			<scope>provided</scope>
 			<version>${vaadin.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>servlet-api-2.5</artifactId>
+					<groupId>org.mortbay.jetty</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.appengine</groupId>
+			<artifactId>appengine-api-1.0-sdk</artifactId>
+			<version>1.8.5</version>
 		</dependency>
 
 		<dependency>
@@ -170,6 +181,11 @@
 						</baseResource>
 					</webAppConfig>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.google.appengine</groupId>
+				<artifactId>appengine-maven-plugin</artifactId>
+				<version>1.8.5</version>
 			</plugin>
 		</plugins>
 	</build>

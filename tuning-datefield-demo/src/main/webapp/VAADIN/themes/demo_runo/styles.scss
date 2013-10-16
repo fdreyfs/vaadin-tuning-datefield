@@ -1,0 +1,9 @@
+@import "addons.scss";
+@import "demo_runo.scss";
+
+/* This file prefixes all rules with the theme name to avoid causing conflicts with other themes. */
+/* The actual styles should be defined in tuning_datefield_demo.scss */
+.demo_runo {
+  @include addons;
+  @include demo_runo;
+}
