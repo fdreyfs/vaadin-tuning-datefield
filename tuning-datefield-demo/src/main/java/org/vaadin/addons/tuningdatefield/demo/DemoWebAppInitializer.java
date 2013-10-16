@@ -1,7 +1,6 @@
 package org.vaadin.addons.tuningdatefield.demo;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -39,11 +38,8 @@ public class DemoWebAppInitializer implements ServletContextListener {
         
         private static final long serialVersionUID = 2122520422024963397L;
         
-        private static final Logger logger = Logger.getLogger(MyServlet.class.getName());
-
         @Override
         public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-            logger.info("Received request : "+req);
             super.service(req, res);
         }
         
