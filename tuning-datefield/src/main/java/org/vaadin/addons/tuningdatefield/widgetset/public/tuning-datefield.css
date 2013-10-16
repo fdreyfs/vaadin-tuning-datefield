@@ -28,11 +28,6 @@
 	text-transform:capitalize;
 }
 
-.tuning-datefield-calendar .controls td:hover {
-	background: #eeeeee;
-	cursor: pointer;
-}
-
 .tuning-datefield-calendar .enabled:hover {
 	background: #eeeeee;
 	cursor: pointer;

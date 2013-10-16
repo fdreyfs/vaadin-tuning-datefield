@@ -27,8 +27,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * A calendar table that holds cell items and controls.<br />
@@ -198,55 +196,57 @@ public abstract class AbstractCalendarTable extends FlexTable {
 
     protected void renderControls() {
 
-        if (controlsEnabled) {
-            Widget leftControl = buildPreviousControl();
-            setWidget(getControlsRow(), getPreviousControlColumn(), leftControl);
+        renderPreviousControl();
 
-            Widget rightControl = buildNextMonthControl();
-            setWidget(getControlsRow(), getNextControlColumn(), rightControl);
+        renderResolutionControl();
 
-        }
-
-        Widget resolutionControl = buildResolutionControl();
-        setWidget(getControlsRow(), getResolutionControlColumn(), resolutionControl);
-
-        int colspan = controlsEnabled ? getNumberOfColumns() - 2 : getNumberOfColumns();
-        getFlexCellFormatter().setColSpan(getControlsRow(), getResolutionControlColumn(), colspan);
+        renderNextControl();
 
         getRowFormatter().setStyleName(getControlsRow(), "controls");
 
     }
 
-    /**
-     * @return the previous control widget
-     */
-    protected Widget buildPreviousControl() {
-        HTML previousControl = new HTML("<");
-        previousControl.setStylePrimaryName("previous-control");
-        return previousControl;
-    }
-
-    /**
-     * @return the next control widget
-     */
-    protected Widget buildNextMonthControl() {
-        HTML nextControl = new HTML(">");
-        nextControl.setStylePrimaryName("next-control");
-        return nextControl;
-    }
-
-    /**
-     * @return the resolution control widget
-     */
-    protected Widget buildResolutionControl() {
-
-        HTML resolutionControl = new HTML(resolutionControlText);
-        resolutionControl.setStylePrimaryName("resolution");
-        if (!controlsEnabled) {
-            resolutionControl.addStyleName("disabled");
+    protected void renderPreviousControl() {
+        if (controlsEnabled) {
+            setText(getControlsRow(), getPreviousControlColumn(), "<");
+            getFlexCellFormatter()
+                    .setStylePrimaryName(getControlsRow(), getPreviousControlColumn(), "previous-control");
+            getFlexCellFormatter().addStyleName(getControlsRow(), getPreviousControlColumn(), "enabled");
+        } else {
+            setText(getControlsRow(), getPreviousControlColumn(), "");
+            getFlexCellFormatter()
+                    .setStylePrimaryName(getControlsRow(), getPreviousControlColumn(), "previous-control");
+            getFlexCellFormatter().addStyleName(getControlsRow(), getPreviousControlColumn(), "disabled");
         }
 
-        return resolutionControl;
+    }
+
+    protected void renderNextControl() {
+        if (controlsEnabled) {
+            setText(getControlsRow(), getNextControlColumn(), ">");
+            getFlexCellFormatter().setStylePrimaryName(getControlsRow(), getNextControlColumn(), "next-control");
+            getFlexCellFormatter().addStyleName(getControlsRow(), getNextControlColumn(), "enabled");
+        } else {
+            setText(getControlsRow(), getNextControlColumn(), "");
+            getFlexCellFormatter().setStylePrimaryName(getControlsRow(), getNextControlColumn(), "next-control");
+            getFlexCellFormatter().addStyleName(getControlsRow(), getNextControlColumn(), "disabled");
+        }
+
+    }
+
+    protected void renderResolutionControl() {
+        setText(getControlsRow(), getResolutionControlColumn(), resolutionControlText);
+        getFlexCellFormatter()
+                .setStylePrimaryName(getControlsRow(), getResolutionControlColumn(), "resolution-control");
+        if (controlsEnabled) {
+            getFlexCellFormatter().addStyleName(getControlsRow(), getResolutionControlColumn(), "enabled");
+        } else {
+            getFlexCellFormatter().addStyleName(getControlsRow(), getResolutionControlColumn(), "disabled");
+        }
+
+        int colspan = getNumberOfColumns() - 2;
+        getFlexCellFormatter().setColSpan(getControlsRow(), getResolutionControlColumn(), colspan);
+
     }
 
     /**

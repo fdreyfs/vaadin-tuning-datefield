@@ -102,6 +102,19 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
             }
         });
         tuningDateFieldLayout.addComponent(toggleEnableButton);
+        Button toggleControlsEnabledButton = new Button("Enable/Disable controls");
+        toggleControlsEnabledButton.addClickListener(new ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                if (basicTuningDateField.isControlsEnabled()) {
+                    basicTuningDateField.setControlsEnabled(false);;
+                } else {
+                    basicTuningDateField.setControlsEnabled(true);
+                }
+            }
+        });
+        tuningDateFieldLayout.addComponent(toggleControlsEnabledButton);
 
         layout.addComponent(tuningDateFieldLayout);
 
