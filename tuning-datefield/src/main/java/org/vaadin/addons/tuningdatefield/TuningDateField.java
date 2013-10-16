@@ -28,6 +28,8 @@ import org.joda.time.Months;
 import org.joda.time.YearMonth;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.vaadin.addons.tuningdatefield.event.CalendarOpenEvent;
+import org.vaadin.addons.tuningdatefield.event.CalendarOpenListener;
 import org.vaadin.addons.tuningdatefield.event.DateChangeEvent;
 import org.vaadin.addons.tuningdatefield.event.DateChangeListener;
 import org.vaadin.addons.tuningdatefield.event.MonthChangeEvent;
@@ -307,7 +309,7 @@ public class TuningDateField extends AbstractField<String> {
             @Override
             public void onCalendarOpen() {
                 TuningDateField.this.onCalendarOpen();
-                markAsDirty();
+               
             }
 
             @Override
@@ -783,7 +785,12 @@ public class TuningDateField extends AbstractField<String> {
         } else {
             yearMonthDisplayed = YearMonth.now();
         }
+        
+        fireEvent(new CalendarOpenEvent(this, yearMonthDisplayed));
+        
         calendarOpen = true;
+        
+        markAsDirty();
     }
 
     /**
@@ -941,6 +948,13 @@ public class TuningDateField extends AbstractField<String> {
         return ((calendar.getFirstDayOfWeek() + 4) % 7) + 1;
     }
 
+    public static final Method CALENDAR_OPEN_METHOD = ReflectTools.findMethod(CalendarOpenListener.class, "calendarOpen",
+            CalendarOpenEvent.class);
+
+    public void addCalendarOpenListener(CalendarOpenListener listener) {
+        addListener(CalendarOpenEvent.class, listener, CALENDAR_OPEN_METHOD);
+    }
+    
     public static final Method DATE_CHANGE_METHOD = ReflectTools.findMethod(DateChangeListener.class, "dateChange",
             DateChangeEvent.class);
 

@@ -16,6 +16,8 @@
 
 package org.vaadin.addons.tuningdatefield.event;
 
+import java.io.Serializable;
+
 import org.joda.time.LocalDate;
 import org.vaadin.addons.tuningdatefield.TuningDateField;
 
@@ -24,7 +26,7 @@ import org.vaadin.addons.tuningdatefield.TuningDateField;
  * 
  * @author Frederic.Dreyfus
  */
-public interface DateChangeListener {
+public interface DateChangeListener extends Serializable {
 
     /**
      * Called when the month a {@link TuningDateField} calendar has been changed.
