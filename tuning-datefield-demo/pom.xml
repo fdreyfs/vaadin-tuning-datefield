@@ -74,11 +74,11 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.google.appengine</groupId>
-			<artifactId>appengine-api-1.0-sdk</artifactId>
-			<version>1.8.5</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.google.appengine</groupId> -->
+<!-- 			<artifactId>appengine-api-1.0-sdk</artifactId> -->
+<!-- 			<version>1.8.5</version> -->
+<!-- 		</dependency> -->
 
 		<dependency>
 			<groupId>de.jollyday</groupId>
@@ -182,11 +182,11 @@
 					</webAppConfig>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>com.google.appengine</groupId>
-				<artifactId>appengine-maven-plugin</artifactId>
-				<version>1.8.5</version>
-			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>com.google.appengine</groupId> -->
+<!-- 				<artifactId>appengine-maven-plugin</artifactId> -->
+<!-- 				<version>1.8.5</version> -->
+<!-- 			</plugin> -->
 		</plugins>
 	</build>
 
