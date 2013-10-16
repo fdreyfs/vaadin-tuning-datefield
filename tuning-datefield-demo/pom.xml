@@ -31,7 +31,7 @@
 		<vaadin.version>7.1.4</vaadin.version>
 		<gwt.version>2.3.0</gwt.version>
 		<gwt.plugin.version>2.2.0</gwt.plugin.version>
-		<tuning-datefield.version>0.3.0</tuning-datefield.version>
+		<tuning-datefield.version>0.4.0</tuning-datefield.version>
 	</properties>
 
 	<dependencies>

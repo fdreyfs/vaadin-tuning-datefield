@@ -309,7 +309,7 @@ public class TuningDateField extends AbstractField<String> {
             @Override
             public void onCalendarOpen() {
                 TuningDateField.this.onCalendarOpen();
-               
+
             }
 
             @Override
@@ -540,7 +540,7 @@ public class TuningDateField extends AbstractField<String> {
                 calendarItems[i].setEnabled(false);
             } else {
                 style.append("currentmonth ");
-                calendarItems[i].setEnabled(true);
+                calendarItems[i].setEnabled(isDateEnabled(date));
             }
 
             if (isWeekend(date)) {
@@ -558,12 +558,6 @@ public class TuningDateField extends AbstractField<String> {
                 if (tooltip != null) {
                     calendarItems[i].setTooltip(tooltip);
                 }
-            }
-
-            if (isDateEnabled(date)) {
-                calendarItems[i].setEnabled(true);
-            } else {
-                calendarItems[i].setEnabled(false);
             }
 
             String computedStyle = style.toString();
@@ -785,11 +779,11 @@ public class TuningDateField extends AbstractField<String> {
         } else {
             yearMonthDisplayed = YearMonth.now();
         }
-        
+
         fireEvent(new CalendarOpenEvent(this, yearMonthDisplayed));
-        
+
         calendarOpen = true;
-        
+
         markAsDirty();
     }
 
@@ -948,13 +942,13 @@ public class TuningDateField extends AbstractField<String> {
         return ((calendar.getFirstDayOfWeek() + 4) % 7) + 1;
     }
 
-    public static final Method CALENDAR_OPEN_METHOD = ReflectTools.findMethod(CalendarOpenListener.class, "calendarOpen",
-            CalendarOpenEvent.class);
+    public static final Method CALENDAR_OPEN_METHOD = ReflectTools.findMethod(CalendarOpenListener.class,
+            "calendarOpen", CalendarOpenEvent.class);
 
     public void addCalendarOpenListener(CalendarOpenListener listener) {
         addListener(CalendarOpenEvent.class, listener, CALENDAR_OPEN_METHOD);
     }
-    
+
     public static final Method DATE_CHANGE_METHOD = ReflectTools.findMethod(DateChangeListener.class, "dateChange",
             DateChangeEvent.class);
 
