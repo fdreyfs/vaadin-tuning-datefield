@@ -30,11 +30,15 @@ public class TuningDateFieldState extends AbstractFieldState {
      */
     private String displayedDateText;
 
+    private boolean dateTextReadOnly;
+
     // //////////////////////
     // Data for calendar
     // //////////////////////
     private boolean calendarOpen;
+
     private CalendarResolution calendarResolution;
+
     private String calendarResolutionText;
 
     private boolean controlsEnabled;
@@ -56,71 +60,24 @@ public class TuningDateFieldState extends AbstractFieldState {
     }
 
     /**
-     * @param displayedDateText
-     *            the displayedDateText to set
+     * @param displayedDateText the displayedDateText to set
      */
     public void setDisplayedDateText(String displayedDateText) {
         this.displayedDateText = displayedDateText;
     }
 
     /**
-     * @return the calendarResolution
+     * @return the dateTextReadOnly
      */
-    public CalendarResolution getCalendarResolution() {
-        return calendarResolution;
+    public boolean isDateTextReadOnly() {
+        return dateTextReadOnly;
     }
 
     /**
-     * @param calendarResolution
-     *            the calendarResolution to set
+     * @param dateTextReadOnly the dateTextReadOnly to set
      */
-    public void setCalendarResolution(CalendarResolution calendarResolution) {
-        this.calendarResolution = calendarResolution;
-    }
-
-    /**
-     * @return the weekHeaderNames
-     */
-    public String[] getWeekHeaderNames() {
-        return weekHeaderNames;
-    }
-
-    /**
-     * @param weekHeaderNames
-     *            the weekHeaderNames to set
-     */
-    public void setWeekHeaderNames(String[] weekHeaderNames) {
-        this.weekHeaderNames = weekHeaderNames;
-    }
-
-    /**
-     * @return the calendarItems
-     */
-    public CalendarItem[] getCalendarItems() {
-        return calendarItems;
-    }
-
-    /**
-     * @param calendarItems
-     *            the calendarItems to set
-     */
-    public void setCalendarItems(CalendarItem[] calendarItems) {
-        this.calendarItems = calendarItems;
-    }
-
-    /**
-     * @return the controlsEnabled
-     */
-    public boolean isControlsEnabled() {
-        return controlsEnabled;
-    }
-
-    /**
-     * @param controlsEnabled
-     *            the controlsEnabled to set
-     */
-    public void setControlsEnabled(boolean controlsEnabled) {
-        this.controlsEnabled = controlsEnabled;
+    public void setDateTextReadOnly(boolean dateTextReadOnly) {
+        this.dateTextReadOnly = dateTextReadOnly;
     }
 
     /**
@@ -131,11 +88,24 @@ public class TuningDateFieldState extends AbstractFieldState {
     }
 
     /**
-     * @param calendarOpen
-     *            the calendarOpen to set
+     * @param calendarOpen the calendarOpen to set
      */
     public void setCalendarOpen(boolean calendarOpen) {
         this.calendarOpen = calendarOpen;
+    }
+
+    /**
+     * @return the calendarResolution
+     */
+    public CalendarResolution getCalendarResolution() {
+        return calendarResolution;
+    }
+
+    /**
+     * @param calendarResolution the calendarResolution to set
+     */
+    public void setCalendarResolution(CalendarResolution calendarResolution) {
+        this.calendarResolution = calendarResolution;
     }
 
     /**
@@ -146,11 +116,54 @@ public class TuningDateFieldState extends AbstractFieldState {
     }
 
     /**
-     * @param calendarResolutionText
-     *            the calendarResolutionText to set
+     * @param calendarResolutionText the calendarResolutionText to set
      */
     public void setCalendarResolutionText(String calendarResolutionText) {
         this.calendarResolutionText = calendarResolutionText;
     }
+
+    /**
+     * @return the controlsEnabled
+     */
+    public boolean isControlsEnabled() {
+        return controlsEnabled;
+    }
+
+    /**
+     * @param controlsEnabled the controlsEnabled to set
+     */
+    public void setControlsEnabled(boolean controlsEnabled) {
+        this.controlsEnabled = controlsEnabled;
+    }
+
+    /**
+     * @return the calendarItems
+     */
+    public CalendarItem[] getCalendarItems() {
+        return calendarItems;
+    }
+
+    /**
+     * @param calendarItems the calendarItems to set
+     */
+    public void setCalendarItems(CalendarItem[] calendarItems) {
+        this.calendarItems = calendarItems;
+    }
+
+    /**
+     * @return the weekHeaderNames
+     */
+    public String[] getWeekHeaderNames() {
+        return weekHeaderNames;
+    }
+
+    /**
+     * @param weekHeaderNames the weekHeaderNames to set
+     */
+    public void setWeekHeaderNames(String[] weekHeaderNames) {
+        this.weekHeaderNames = weekHeaderNames;
+    }
+
+    
 
 }

@@ -18,23 +18,13 @@ package org.vaadin.addons.tuningdatefield.widgetset.client.ui;
 
 import java.util.logging.Logger;
 
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarItem;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarResolution;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.TuningDateFieldCalendarWidget;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarClosedEvent;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarClosedHandler;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickEvent;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickHandler;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarOpenEvent;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarOpenHandler;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.DateTextChangeEvent;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.DateTextChangeHandler;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.NextControlClickEvent;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.NextControlClickHandler;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.PreviousControlClickEvent;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.PreviousControlClickHandler;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.ResolutionControlClickEvent;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.ResolutionControlClickHandler;
 
 import com.google.gwt.aria.client.Id;
 import com.google.gwt.aria.client.Roles;
@@ -70,7 +60,8 @@ import com.vaadin.client.ui.VTextField;
  * @author Frederic.Dreyfus
  * 
  */
-public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHandler<PopupPanel>, ClickHandler, ChangeHandler {
+public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHandler<PopupPanel>, ClickHandler,
+        ChangeHandler {
 
     /**
      * We reuse Vaadin class so that the textfield/toogle button look the same as other Vaadin fields
@@ -88,20 +79,6 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
     private boolean enabled = true;
     private boolean readOnly;
 
-    // //////////////////////
-    // Data for calendar
-    // //////////////////////
-    private CalendarResolution calendarResolution;
-    private String calendarResolutionText;
-    private boolean renderControls = true; // FIXME not handled yet
-
-    private boolean controlsEnabled;
-
-    // For Day calendar resolutions
-    private String[] weekHeaderNames;
-
-    private CalendarItem[] calendarItems;
-
     /**
      * True when the popup calendar is open, else false
      */
@@ -109,6 +86,7 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
 
     public TuningDateFieldWidget() {
         setStyleName(CLASSNAME);
+        addStyleName("tuning-datefield");
 
         dateTextBox = new TextBox();
         dateTextBox.addStyleName("v-textfield");
@@ -141,7 +119,6 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
         add(calendarToggle);
 
         calendar = GWT.create(TuningDateFieldCalendarWidget.class);
-        calendar.setParentField(this);
         calendar.setFocusOutListener(new FocusOutListener() {
             @Override
             public boolean onFocusOut(DomEvent<?> event) {
@@ -174,7 +151,7 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
     }
 
     public void redrawCalendar() {
-        calendar.redraw();
+        calendar.redraw(calendarOpen);
         // HACK : We need to hide/show so that the popup overlay is repainted
         if (popup.isShowing()) {
             popup.hide();
@@ -186,7 +163,7 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
 
         if (!calendarOpen && !readOnly) {
             fireEvent(new CalendarOpenEvent());
-            calendar.redraw();
+            calendar.redraw(calendarOpen);
 
             // clear previous values
             popup.setWidth("");
@@ -296,23 +273,6 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
         return addHandler(calendarClosedHandler, CalendarClosedEvent.getType());
     }
 
-    public HandlerRegistration addCalendarItemClickHandler(CalendarItemClickHandler calendarItemClickHandler) {
-        return addHandler(calendarItemClickHandler, CalendarItemClickEvent.getType());
-    }
-
-    public HandlerRegistration addPreviousControlClickHandler(PreviousControlClickHandler previousControlClickHandler) {
-        return addHandler(previousControlClickHandler, PreviousControlClickEvent.getType());
-    }
-
-    public HandlerRegistration addNextControlClickHandler(NextControlClickHandler nextControlClickHandler) {
-        return addHandler(nextControlClickHandler, NextControlClickEvent.getType());
-    }
-
-    public HandlerRegistration addResolutionControlClickHandler(
-            ResolutionControlClickHandler resolutionControlClickHandler) {
-        return addHandler(resolutionControlClickHandler, ResolutionControlClickEvent.getType());
-    }
-
     /**
      * @return the enabled
      */
@@ -344,66 +304,6 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
     }
 
     /**
-     * @return the renderControls
-     */
-    public boolean isRenderControls() {
-        return renderControls;
-    }
-
-    /**
-     * @param renderControls
-     *            the renderControls to set
-     */
-    public void setRenderControls(boolean renderControls) {
-        this.renderControls = renderControls;
-    }
-
-    /**
-     * @return the weekHeaderNames
-     */
-    public String[] getWeekHeaderNames() {
-        return weekHeaderNames;
-    }
-
-    /**
-     * @param weekHeaderNames
-     *            the weekHeaderNames to set
-     */
-    public void setWeekHeaderNames(String[] weekHeaderNames) {
-        this.weekHeaderNames = weekHeaderNames;
-    }
-
-    /**
-     * @return the calendarResolution
-     */
-    public CalendarResolution getCalendarResolution() {
-        return calendarResolution;
-    }
-
-    /**
-     * @param calendarResolution
-     *            the calendarResolution to set
-     */
-    public void setCalendarResolution(CalendarResolution calendarResolution) {
-        this.calendarResolution = calendarResolution;
-    }
-
-    /**
-     * @return the controlsEnabled
-     */
-    public boolean isControlsEnabled() {
-        return controlsEnabled;
-    }
-
-    /**
-     * @param controlsEnabled
-     *            the controlsEnabled to set
-     */
-    public void setControlsEnabled(boolean controlsEnabled) {
-        this.controlsEnabled = controlsEnabled;
-    }
-
-    /**
      * @return the calendarOpen
      */
     public boolean isCalendarOpen() {
@@ -423,36 +323,6 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
     }
 
     /**
-     * @return the calendarResolutionText
-     */
-    public String getCalendarResolutionText() {
-        return calendarResolutionText;
-    }
-
-    /**
-     * @param calendarResolutionText
-     *            the calendarResolutionText to set
-     */
-    public void setCalendarResolutionText(String calendarResolutionText) {
-        this.calendarResolutionText = calendarResolutionText;
-    }
-
-    /**
-     * @return the calendarItems
-     */
-    public CalendarItem[] getCalendarItems() {
-        return calendarItems;
-    }
-
-    /**
-     * @param calendarItems
-     *            the calendarItems to set
-     */
-    public void setCalendarItems(CalendarItem[] calendarItems) {
-        this.calendarItems = calendarItems;
-    }
-
-    /**
      * @return the calendarToggle
      */
     public Button getCalendarToggle() {
@@ -464,6 +334,28 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
      */
     public TextBox getDateTextBox() {
         return dateTextBox;
+    }
+
+    /**
+     * @return the dateTextReadOnly
+     */
+    public boolean isDateTextReadOnly() {
+        return dateTextBox.isReadOnly();
+    }
+
+    /**
+     * @param dateTextReadOnly
+     *            the dateTextReadOnly to set
+     */
+    public void setDateTextReadOnly(boolean dateTextReadOnly) {
+        dateTextBox.setReadOnly(dateTextReadOnly);
+    }
+
+    /**
+     * @return the calendar
+     */
+    public TuningDateFieldCalendarWidget getCalendar() {
+        return calendar;
     }
 
 }

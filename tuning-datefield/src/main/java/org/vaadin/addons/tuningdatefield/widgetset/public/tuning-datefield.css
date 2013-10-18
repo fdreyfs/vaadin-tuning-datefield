@@ -1,3 +1,8 @@
+
+.tuning-datefield input[readonly] {
+	cursor: not-allowed;
+	background-color: #eeeeee;
+}
  
 .tuning-datefield-calendar {	
 	-webkit-border-radius: 5px;

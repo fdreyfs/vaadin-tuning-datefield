@@ -16,6 +16,7 @@ import org.joda.time.YearMonth;
 import org.joda.time.format.DateTimeFormat;
 import org.vaadin.addons.tuningdatefield.CellItemCustomizerAdapter;
 import org.vaadin.addons.tuningdatefield.TuningDateField;
+import org.vaadin.addons.tuningdatefield.InlineTuningDateField;
 import org.vaadin.addons.tuningdatefield.demo.Absence.AbsenceDuration;
 import org.vaadin.addons.tuningdatefield.event.CalendarOpenEvent;
 import org.vaadin.addons.tuningdatefield.event.CalendarOpenListener;
@@ -88,6 +89,7 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
         tuningDateFieldLayout.setCaption("Basic US TuningDateField");
         final TuningDateField basicTuningDateField = new TuningDateField();
         basicTuningDateField.setLocale(Locale.US);
+        basicTuningDateField.setInvalidAllowed(false);
         tuningDateFieldLayout.addComponent(basicTuningDateField);
         Button toggleEnableButton = new Button("Toggle enabled/disabled");
         toggleEnableButton.addClickListener(new ClickListener() {
@@ -102,21 +104,56 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
             }
         });
         tuningDateFieldLayout.addComponent(toggleEnableButton);
+        
+        
+        Button toggleDateTextReadOnlyButton = new Button("Enable/Disable dateText readOnly");
+        toggleDateTextReadOnlyButton.addClickListener(new ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                if (basicTuningDateField.isDateTextReadOnly()) {
+                    basicTuningDateField.setDateTextReadOnly(false);
+                } else {
+                    basicTuningDateField.setDateTextReadOnly(true);
+                }
+            }
+        });
+        tuningDateFieldLayout.addComponent(toggleDateTextReadOnlyButton);
+
+        layout.addComponent(tuningDateFieldLayout);
+        
+        HorizontalLayout tuningInlineDateFieldLayout = new HorizontalLayout();
+        tuningInlineDateFieldLayout.setSpacing(true);
+        tuningInlineDateFieldLayout.setCaption("US InlineTuningDateField");
+        final InlineTuningDateField tuningInlineDateField = new InlineTuningDateField();
+        tuningInlineDateField.setLocale(Locale.US);        
+        tuningInlineDateFieldLayout.addComponent(tuningInlineDateField);
+        VerticalLayout inlineInfosLayout = new VerticalLayout();
         Button toggleControlsEnabledButton = new Button("Enable/Disable controls");
         toggleControlsEnabledButton.addClickListener(new ClickListener() {
 
             @Override
             public void buttonClick(ClickEvent event) {
-                if (basicTuningDateField.isControlsEnabled()) {
-                    basicTuningDateField.setControlsEnabled(false);;
+                if (tuningInlineDateField.isControlsEnabled()) {
+                    tuningInlineDateField.setControlsEnabled(false);
                 } else {
-                    basicTuningDateField.setControlsEnabled(true);
+                    tuningInlineDateField.setControlsEnabled(true);
                 }
             }
         });
-        tuningDateFieldLayout.addComponent(toggleControlsEnabledButton);
-
-        layout.addComponent(tuningDateFieldLayout);
+        inlineInfosLayout.addComponent(toggleControlsEnabledButton);
+        final Label inlineSelectedDateLabel = new Label();
+        tuningInlineDateField.addDateChangeListener(new DateChangeListener() {
+            
+            @Override
+            public void dateChange(DateChangeEvent event) {
+                inlineSelectedDateLabel.setValue("Date selected : "+event.getLocalDate());
+                
+            }
+        });
+        inlineInfosLayout.addComponent(inlineSelectedDateLabel);
+        tuningInlineDateFieldLayout.addComponent(inlineInfosLayout);
+        layout.addComponent(tuningInlineDateFieldLayout);
 
         TuningDateField rangeTuningDateField = new TuningDateField("TuningDateField with range");
         rangeTuningDateField.setLocale(Locale.US);

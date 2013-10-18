@@ -16,7 +16,6 @@
 
 package org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar;
 
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.TuningDateFieldWidget;
 
 /**
  * A calendar table with year resolution.
@@ -26,9 +25,9 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.ui.TuningDateFieldWidg
  */
 public class YearCalendarTable extends AbstractCalendarTable {
 
-    public YearCalendarTable(TuningDateFieldWidget tuningDateField, String resolutionControlText,
+    public YearCalendarTable(TuningDateFieldCalendarWidget tuningDateFieldCalendar, String resolutionControlText,
             CalendarItem[] calendarItems, boolean controlsEnabled) {
-        super(tuningDateField, resolutionControlText, calendarItems, controlsEnabled);
+        super(tuningDateFieldCalendar, resolutionControlText, calendarItems, controlsEnabled);
     }
 
     @Override

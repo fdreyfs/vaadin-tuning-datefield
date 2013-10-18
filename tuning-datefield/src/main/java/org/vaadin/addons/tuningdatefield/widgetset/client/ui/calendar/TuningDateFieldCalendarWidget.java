@@ -17,9 +17,17 @@
 package org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar;
 
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.TuningDateFieldBundle;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.TuningDateFieldWidget;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickEvent;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickHandler;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.NextControlClickEvent;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.NextControlClickHandler;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.PreviousControlClickEvent;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.PreviousControlClickHandler;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.ResolutionControlClickEvent;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.ResolutionControlClickHandler;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,7 +38,18 @@ public class TuningDateFieldCalendarWidget extends SimplePanel {
 
     public static final String CLASSNAME = "tuning-datefield-calendar";
 
-    private TuningDateFieldWidget parentField;
+    // //////////////////////
+    // Data for calendar
+    // //////////////////////
+    private CalendarResolution calendarResolution;
+    private String calendarResolutionText;
+
+    private boolean controlsEnabled;
+
+    // For Day calendar resolutions
+    private String[] weekHeaderNames;
+
+    private CalendarItem[] calendarItems;
 
     private FocusOutListener focusOutListener;
     private SubmitListener submitListener;
@@ -44,46 +63,46 @@ public class TuningDateFieldCalendarWidget extends SimplePanel {
         loadingWidget = new Image(tuningDateFieldBundle.getLoadingIndicator());
     }
 
-    public void redraw() {
-
+    public void redraw(boolean calendarOpen) {
         if (currentCalendarTable != null) {
             remove(currentCalendarTable);
         }
         setWidget(loadingWidget);
-        if (parentField.isCalendarOpen()) {
-            switch (parentField.getCalendarResolution()) {
+        if (calendarOpen) {
+            switch (calendarResolution) {
             case MONTH:
-                currentCalendarTable = new MonthCalendarTable(parentField, parentField.getCalendarResolutionText(),
-                        parentField.getCalendarItems(), parentField.isControlsEnabled());
+                currentCalendarTable = new MonthCalendarTable(this, calendarResolutionText, calendarItems,
+                        controlsEnabled);
                 break;
             case YEAR:
-                currentCalendarTable = new YearCalendarTable(parentField, parentField.getCalendarResolutionText(),
-                        parentField.getCalendarItems(), parentField.isControlsEnabled());
+                currentCalendarTable = new YearCalendarTable(this, calendarResolutionText, calendarItems,
+                        controlsEnabled);
                 break;
             default:
-                currentCalendarTable = new DayCalendarTable(parentField, parentField.getCalendarResolutionText(),
-                        parentField.getCalendarItems(), parentField.isControlsEnabled());
+                currentCalendarTable = new DayCalendarTable(this, calendarResolutionText, calendarItems,
+                        controlsEnabled);
                 break;
             }
-
             setWidget(currentCalendarTable);
         }
 
     }
-
-    /**
-     * @return the parentField
-     */
-    public TuningDateFieldWidget getParentField() {
-        return parentField;
+    
+    public HandlerRegistration addCalendarItemClickHandler(CalendarItemClickHandler calendarItemClickHandler) {
+        return addHandler(calendarItemClickHandler, CalendarItemClickEvent.getType());
     }
 
-    /**
-     * @param parentField
-     *            the parentField to set
-     */
-    public void setParentField(TuningDateFieldWidget parentField) {
-        this.parentField = parentField;
+    public HandlerRegistration addPreviousControlClickHandler(PreviousControlClickHandler previousControlClickHandler) {
+        return addHandler(previousControlClickHandler, PreviousControlClickEvent.getType());
+    }
+
+    public HandlerRegistration addNextControlClickHandler(NextControlClickHandler nextControlClickHandler) {
+        return addHandler(nextControlClickHandler, NextControlClickEvent.getType());
+    }
+
+    public HandlerRegistration addResolutionControlClickHandler(
+            ResolutionControlClickHandler resolutionControlClickHandler) {
+        return addHandler(resolutionControlClickHandler, ResolutionControlClickEvent.getType());
     }
 
     /**
@@ -114,6 +133,111 @@ public class TuningDateFieldCalendarWidget extends SimplePanel {
      */
     public void setSubmitListener(SubmitListener submitListener) {
         this.submitListener = submitListener;
+    }
+
+    /**
+     * @return the calendarResolution
+     */
+    public CalendarResolution getCalendarResolution() {
+        return calendarResolution;
+    }
+
+    /**
+     * @param calendarResolution
+     *            the calendarResolution to set
+     */
+    public void setCalendarResolution(CalendarResolution calendarResolution) {
+        this.calendarResolution = calendarResolution;
+    }
+
+    /**
+     * @return the calendarResolutionText
+     */
+    public String getCalendarResolutionText() {
+        return calendarResolutionText;
+    }
+
+    /**
+     * @param calendarResolutionText
+     *            the calendarResolutionText to set
+     */
+    public void setCalendarResolutionText(String calendarResolutionText) {
+        this.calendarResolutionText = calendarResolutionText;
+    }
+
+    /**
+     * @return the controlsEnabled
+     */
+    public boolean isControlsEnabled() {
+        return controlsEnabled;
+    }
+
+    /**
+     * @param controlsEnabled
+     *            the controlsEnabled to set
+     */
+    public void setControlsEnabled(boolean controlsEnabled) {
+        this.controlsEnabled = controlsEnabled;
+    }
+
+    /**
+     * @return the weekHeaderNames
+     */
+    public String[] getWeekHeaderNames() {
+        return weekHeaderNames;
+    }
+
+    /**
+     * @param weekHeaderNames
+     *            the weekHeaderNames to set
+     */
+    public void setWeekHeaderNames(String[] weekHeaderNames) {
+        this.weekHeaderNames = weekHeaderNames;
+    }
+
+    /**
+     * @return the calendarItems
+     */
+    public CalendarItem[] getCalendarItems() {
+        return calendarItems;
+    }
+
+    /**
+     * @param calendarItems
+     *            the calendarItems to set
+     */
+    public void setCalendarItems(CalendarItem[] calendarItems) {
+        this.calendarItems = calendarItems;
+    }
+
+    /**
+     * @return the loadingWidget
+     */
+    public Widget getLoadingWidget() {
+        return loadingWidget;
+    }
+
+    /**
+     * @param loadingWidget
+     *            the loadingWidget to set
+     */
+    public void setLoadingWidget(Widget loadingWidget) {
+        this.loadingWidget = loadingWidget;
+    }
+
+    /**
+     * @return the currentCalendarTable
+     */
+    public Widget getCurrentCalendarTable() {
+        return currentCalendarTable;
+    }
+
+    /**
+     * @param currentCalendarTable
+     *            the currentCalendarTable to set
+     */
+    public void setCurrentCalendarTable(Widget currentCalendarTable) {
+        this.currentCalendarTable = currentCalendarTable;
     }
 
 }

@@ -17,8 +17,6 @@
 
 package org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar;
 
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.TuningDateFieldWidget;
-
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 
@@ -26,9 +24,9 @@ public class DayCalendarTable extends AbstractCalendarTable {
 
     private static final int WEEKDAY_NAMES_ROW = 1;
 
-    public DayCalendarTable(TuningDateFieldWidget tuningDateField, String resolutionControlText, CalendarItem[] calendarItems,
+    public DayCalendarTable(TuningDateFieldCalendarWidget tuningDateFieldCalendar, String resolutionControlText, CalendarItem[] calendarItems,
             boolean controlsEnabled) {
-        super(tuningDateField, resolutionControlText, calendarItems, controlsEnabled);
+        super(tuningDateFieldCalendar, resolutionControlText, calendarItems, controlsEnabled);
     }
 
     protected int getFirstCellItemsRow() {
@@ -54,7 +52,7 @@ public class DayCalendarTable extends AbstractCalendarTable {
     private void renderWeekHeaderNames() {
         getRowFormatter().setStylePrimaryName(WEEKDAY_NAMES_ROW, "daynames");
         for (int i = 0; i < getNumberOfColumns(); i++) {
-            setText(WEEKDAY_NAMES_ROW, i, tuningDateField.getWeekHeaderNames()[i]);
+            setText(WEEKDAY_NAMES_ROW, i, tuningDateFieldCalendar.getWeekHeaderNames()[i]);
             getCellFormatter().setAlignment(WEEKDAY_NAMES_ROW, i, HasHorizontalAlignment.ALIGN_CENTER,
                     HasVerticalAlignment.ALIGN_MIDDLE);
         }

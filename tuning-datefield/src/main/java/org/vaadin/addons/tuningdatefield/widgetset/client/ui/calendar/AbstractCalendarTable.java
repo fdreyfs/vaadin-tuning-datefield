@@ -16,8 +16,6 @@
 
 package org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar;
 
-import org.vaadin.addons.tuningdatefield.TuningDateField;
-import org.vaadin.addons.tuningdatefield.widgetset.client.ui.TuningDateFieldWidget;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickEvent;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.NextControlClickEvent;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.PreviousControlClickEvent;
@@ -41,9 +39,9 @@ import com.google.gwt.user.client.ui.FlexTable;
 public abstract class AbstractCalendarTable extends FlexTable {
 
     /**
-     * The parent {@link TuningDateField}
+     * The parent {@link TuningDateFieldCalendarWidget}
      */
-    protected TuningDateFieldWidget tuningDateField;
+    protected TuningDateFieldCalendarWidget tuningDateFieldCalendar;
 
     /**
      * The text in the resolution control cell
@@ -60,10 +58,10 @@ public abstract class AbstractCalendarTable extends FlexTable {
      */
     protected boolean controlsEnabled;
 
-    public AbstractCalendarTable(TuningDateFieldWidget tuningDateField, String resolutionControlText,
+    public AbstractCalendarTable(TuningDateFieldCalendarWidget tuningDateFieldCalendar, String resolutionControlText,
             CalendarItem[] calendarItems, boolean controlsEnabled) {
         super();
-        this.tuningDateField = tuningDateField;
+        this.tuningDateFieldCalendar = tuningDateFieldCalendar;
         this.resolutionControlText = resolutionControlText;
         this.calendarItems = calendarItems;
         this.controlsEnabled = controlsEnabled;
@@ -286,20 +284,20 @@ public abstract class AbstractCalendarTable extends FlexTable {
     }
 
     public void cellItemClick(int itemIndex) {
-        tuningDateField
+        tuningDateFieldCalendar
                 .fireEvent(new CalendarItemClickEvent(calendarItems[itemIndex].getRelativeDateIndex(), itemIndex));
     }
 
     public void previousControlClick() {
-        tuningDateField.fireEvent(new PreviousControlClickEvent());
+        tuningDateFieldCalendar.fireEvent(new PreviousControlClickEvent());
     }
 
     public void nextControlClick() {
-        tuningDateField.fireEvent(new NextControlClickEvent());
+        tuningDateFieldCalendar.fireEvent(new NextControlClickEvent());
     }
 
     public void resolutionControlClick() {
-        tuningDateField.fireEvent(new ResolutionControlClickEvent());
+        tuningDateFieldCalendar.fireEvent(new ResolutionControlClickEvent());
     }
 
 }

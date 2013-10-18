@@ -14,25 +14,8 @@
  * limitations under the License.
  */
 
+package org.vaadin.addons.tuningdatefield.widgetset.client;
 
-package org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar;
-
-
-public class MonthCalendarTable extends AbstractCalendarTable {
-
-    public MonthCalendarTable(TuningDateFieldCalendarWidget tuningDateFieldCalendar, String resolutionControlText, CalendarItem[] calendarItems,
-            boolean controlsEnabled) {
-        super(tuningDateFieldCalendar, resolutionControlText, calendarItems, controlsEnabled);
-    }
-
-    @Override
-    protected int getNumberOfColumns() {
-        return 4;
-    }
-
-    @Override
-    protected String getCellItemPrimaryStylename() {
-        return "month";
-    }
+public interface InlineTuningDateFieldRpc extends TuningDateFieldRpc {
 
 }

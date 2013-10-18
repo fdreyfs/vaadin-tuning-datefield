@@ -74,7 +74,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
             }
         });
 
-        getWidget().addCalendarItemClickHandler(new CalendarItemClickHandler() {
+        getWidget().getCalendar().addCalendarItemClickHandler(new CalendarItemClickHandler() {
 
             @Override
             public void onCalendarItemClick(CalendarItemClickEvent event) {
@@ -82,7 +82,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
             }
         });
 
-        getWidget().addPreviousControlClickHandler(new PreviousControlClickHandler() {
+        getWidget().getCalendar().addPreviousControlClickHandler(new PreviousControlClickHandler() {
 
             @Override
             public void onPreviousControlClick(PreviousControlClickEvent event) {
@@ -90,7 +90,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
             }
         });
 
-        getWidget().addNextControlClickHandler(new NextControlClickHandler() {
+        getWidget().getCalendar().addNextControlClickHandler(new NextControlClickHandler() {
 
             @Override
             public void onNextControlClick(NextControlClickEvent event) {
@@ -98,7 +98,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
             }
         });
 
-        getWidget().addResolutionControlClickHandler(new ResolutionControlClickHandler() {
+        getWidget().getCalendar().addResolutionControlClickHandler(new ResolutionControlClickHandler() {
 
             @Override
             public void onResolutionControlClick(ResolutionControlClickEvent event) {
@@ -113,18 +113,19 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
 
         getWidget().getDateTextBox().setEnabled(getState().enabled);
         getWidget().getCalendarToggle().setEnabled(getState().enabled);
+        getWidget().setDateTextReadOnly(getState().isDateTextReadOnly());
         
         getWidget().setDisplayedDateText(getState().getDisplayedDateText());
         getWidget().setCalendarOpen(getState().isCalendarOpen());
         if (getState().isCalendarOpen()) {
-            getWidget().setCalendarResolutionText(getState().getCalendarResolutionText());
-            getWidget().setWeekHeaderNames(getState().getWeekHeaderNames());
+            getWidget().getCalendar().setCalendarResolutionText(getState().getCalendarResolutionText());
+            getWidget().getCalendar().setWeekHeaderNames(getState().getWeekHeaderNames());
 
-            getWidget().setControlsEnabled(getState().isControlsEnabled());
+            getWidget().getCalendar().setControlsEnabled(getState().isControlsEnabled());
 
-            getWidget().setCalendarResolution(getState().getCalendarResolution());
+            getWidget().getCalendar().setCalendarResolution(getState().getCalendarResolution());
 
-            getWidget().setCalendarItems(getState().getCalendarItems());
+            getWidget().getCalendar().setCalendarItems(getState().getCalendarItems());
 
             getWidget().redrawCalendar();
         }

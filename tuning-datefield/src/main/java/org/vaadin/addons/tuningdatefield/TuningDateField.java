@@ -161,7 +161,7 @@ public class TuningDateField extends AbstractField<String> {
     private RangeValidator<LocalDate> dateRangeValidator;
 
     // private boolean dayPicker = true;
-    private CalendarResolution calendarResolution = CalendarResolution.DAY;
+    protected CalendarResolution calendarResolution = CalendarResolution.DAY;
 
     /**
      * A dateTimeFormatter for parsing/printing dates. A default {@link DateTimeFormatter} is defined with short format
@@ -170,30 +170,37 @@ public class TuningDateField extends AbstractField<String> {
     private DateTimeFormatter dateTimeFormatter;
 
     // True if the dateTimeFormatter is the default one and not a user defined
-    private boolean defaultDateTimeFormatter = true;
+    protected boolean defaultDateTimeFormatter = true;
     // Internal uses : the following 4 values are computed once at init and if the locale changes.
-    private String[] monthTexts; // Jan, Feb, Mar
-    private String[] shortMonthTexts; // Jan, Feb, Mar
-    private String[] weekDayNames; // Sun, Mon, Tue, ...
-    private int firstDayOfWeek; // 1 in France (monday), 7 in the US (sunday)
-    private int lastDayOfWeek; // 7 in France (sunday), 6 in the US (saturday)
+    protected String[] monthTexts; // Jan, Feb, Mar
+    protected String[] shortMonthTexts; // Jan, Feb, Mar
+    protected String[] weekDayNames; // Sun, Mon, Tue, ...
+    protected int firstDayOfWeek; // 1 in France (monday), 7 in the US (sunday)
+    protected int lastDayOfWeek; // 7 in France (sunday), 6 in the US (saturday)
 
     /**
      * True to disable weekends.
      * 
      * @see #setWeekendDisabled(boolean)
      */
-    private boolean weekendDisabled = true;
+    protected boolean weekendDisabled = true;
 
     /**
      * True to enable/disabled controls
      * 
      * @see #setControlsEnabled(boolean)
      */
-    private boolean controlsEnabled = true;
+    protected boolean controlsEnabled = true;
+
+    /**
+     * True to enable/disabled dateText field edition
+     * 
+     * @see #setDateTextReadOnly(boolean)
+     */
+    private boolean dateTextReadOnly;
 
     // Internal use : the month currently displayed in the calendar
-    private YearMonth yearMonthDisplayed;
+    protected YearMonth yearMonthDisplayed;
 
     // Internal use : the year currently displayed in the calendar
     private int yearDisplayed;
@@ -234,7 +241,7 @@ public class TuningDateField extends AbstractField<String> {
         setupLocaleBasedStaticData(getLocale());
         initConverter();
         setYearMonthDisplayed(YearMonth.now());
-        registerTuningDateFieldRpc();
+        registerRpc();
 
         addValueChangeListener(new ValueChangeListener() {
 
@@ -301,7 +308,7 @@ public class TuningDateField extends AbstractField<String> {
         setConverter(converter);
     }
 
-    private void registerTuningDateFieldRpc() {
+    protected void registerRpc() {
         registerRpc(new TuningDateFieldRpc() {
 
             private static final long serialVersionUID = 3572898507878457932L;
@@ -475,33 +482,37 @@ public class TuningDateField extends AbstractField<String> {
         // For days of first week that are in previous month
         // Get first day of week of last week's previous month
         if (getValue() != null) {
-            getState().setDisplayedDateText(getValue());
+            ((TuningDateFieldState) getState()).setDisplayedDateText(getValue());
         }
-        getState().setCalendarOpen(calendarOpen);
+        ((TuningDateFieldState) getState()).setCalendarOpen(calendarOpen);
+        ((TuningDateFieldState) getState()).setDateTextReadOnly(dateTextReadOnly);
 
         // We send calendar state only if it's open
         if (calendarOpen) {
-            getState().setControlsEnabled(controlsEnabled);
-            getState().setCalendarResolution(calendarResolution);
+            ((TuningDateFieldState) getState()).setControlsEnabled(controlsEnabled);
+            ((TuningDateFieldState) getState()).setCalendarResolution(calendarResolution);
 
             if (calendarResolution.equals(CalendarResolution.DAY)) {
                 YearMonth yearMonthDisplayed = getYearMonthDisplayed();
                 String displayedMonthText = monthTexts[yearMonthDisplayed.getMonthOfYear() - 1];
-                getState().setCalendarResolutionText(displayedMonthText + " " + yearMonthDisplayed.getYear());
-                getState().setWeekHeaderNames(weekDayNames);
-                getState().setCalendarItems(buildDayItems());
+                ((TuningDateFieldState) getState()).setCalendarResolutionText(displayedMonthText + " "
+                        + yearMonthDisplayed.getYear());
+                ((TuningDateFieldState) getState()).setWeekHeaderNames(weekDayNames);
+                ((TuningDateFieldState) getState()).setCalendarItems(buildDayItems());
             } else if (calendarResolution.equals(CalendarResolution.MONTH)) {
-                getState().setCalendarItems(buildMonthItems());
-                getState().setCalendarResolutionText(Integer.toString(yearMonthDisplayed.getYear()));
+                ((TuningDateFieldState) getState()).setCalendarItems(buildMonthItems());
+                ((TuningDateFieldState) getState()).setCalendarResolutionText(Integer.toString(yearMonthDisplayed
+                        .getYear()));
             } else if (calendarResolution.equals(CalendarResolution.YEAR)) {
-                getState().setCalendarItems(buildYearItems());
-                getState().setCalendarResolutionText(getCalendarFirstYear() + " - " + getCalendarLastYear());
+                ((TuningDateFieldState) getState()).setCalendarItems(buildYearItems());
+                ((TuningDateFieldState) getState()).setCalendarResolutionText(getCalendarFirstYear() + " - "
+                        + getCalendarLastYear());
             }
         }
 
     }
 
-    private CalendarItem[] buildDayItems() {
+    protected CalendarItem[] buildDayItems() {
 
         LocalDate calendarFirstDay = getCalendarFirstDay();
         LocalDate calendarLastDay = getCalendarLastDay();
@@ -568,7 +579,7 @@ public class TuningDateField extends AbstractField<String> {
         return calendarItems;
     }
 
-    private CalendarItem[] buildMonthItems() {
+    protected CalendarItem[] buildMonthItems() {
 
         YearMonth calendarFirstMonth = getCalendarFirstMonth();
         YearMonth calendarLastMonth = getCalendarLastMonth();
@@ -626,7 +637,7 @@ public class TuningDateField extends AbstractField<String> {
         return calendarItems;
     }
 
-    private CalendarItem[] buildYearItems() {
+    protected CalendarItem[] buildYearItems() {
 
         int calendarFirstYear = getCalendarFirstYear();
         int calendarLastYear = getCalendarLastYear();
@@ -749,14 +760,14 @@ public class TuningDateField extends AbstractField<String> {
     /**
      * If current year displayed is 1954, the range is 1949-1960
      */
-    private int getCalendarFirstYear() {
+    protected int getCalendarFirstYear() {
         return yearDisplayed - yearDisplayed % 10 - 1;
     }
 
     /**
      * If current year displayed is 1954, the range is 1949-1960
      */
-    private int getCalendarLastYear() {
+    protected int getCalendarLastYear() {
         return yearDisplayed - yearDisplayed % 10 + 10;
     }
 
@@ -1079,6 +1090,7 @@ public class TuningDateField extends AbstractField<String> {
      */
     public void setControlsEnabled(boolean controlsEnabled) {
         this.controlsEnabled = controlsEnabled;
+        markAsDirty();
     }
 
     /**
@@ -1094,6 +1106,22 @@ public class TuningDateField extends AbstractField<String> {
      */
     public void setCellItemCustomizer(CellItemCustomizer cellItemCustomizer) {
         this.cellItemCustomizer = cellItemCustomizer;
+    }
+
+    /**
+     * @return the dateTextReadOnly
+     */
+    public boolean isDateTextReadOnly() {
+        return dateTextReadOnly;
+    }
+
+    /**
+     * @param dateTextReadOnly
+     *            the dateTextReadOnly to set
+     */
+    public void setDateTextReadOnly(boolean dateTextReadOnly) {
+        this.dateTextReadOnly = dateTextReadOnly;
+        markAsDirty();
     }
 
 }
