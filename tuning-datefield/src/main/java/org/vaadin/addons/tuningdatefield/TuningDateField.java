@@ -16,6 +16,8 @@
 
 package org.vaadin.addons.tuningdatefield;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Method;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
@@ -34,6 +36,9 @@ import org.vaadin.addons.tuningdatefield.event.DateChangeEvent;
 import org.vaadin.addons.tuningdatefield.event.DateChangeListener;
 import org.vaadin.addons.tuningdatefield.event.MonthChangeEvent;
 import org.vaadin.addons.tuningdatefield.event.MonthChangeListener;
+import org.vaadin.addons.tuningdatefield.event.ResolutionChangeEvent;
+import org.vaadin.addons.tuningdatefield.event.ResolutionChangeEvent.Resolution;
+import org.vaadin.addons.tuningdatefield.event.ResolutionChangeListener;
 import org.vaadin.addons.tuningdatefield.event.YearChangeEvent;
 import org.vaadin.addons.tuningdatefield.event.YearChangeListener;
 import org.vaadin.addons.tuningdatefield.widgetset.client.TuningDateFieldRpc;
@@ -163,20 +168,17 @@ public class TuningDateField extends AbstractField<String> {
     // private boolean dayPicker = true;
     protected CalendarResolution calendarResolution = CalendarResolution.DAY;
 
-    /**
-     * A dateTimeFormatter for parsing/printing dates. A default {@link DateTimeFormatter} is defined with short format
-     * for current locale. This can be overriden using {@link #setDateTimeFormatter(DateTimeFormatter)}
-     */
-    private DateTimeFormatter dateTimeFormatter;
+    // The dateTimeFormatter pattern (ex: yyyy/MM/dd)
+    protected String dateTimeFormatterPattern = null;
 
-    // True if the dateTimeFormatter is the default one and not a user defined
-    protected boolean defaultDateTimeFormatter = true;
-    // Internal uses : the following 4 values are computed once at init and if the locale changes.
-    protected String[] monthTexts; // Jan, Feb, Mar
-    protected String[] shortMonthTexts; // Jan, Feb, Mar
-    protected String[] weekDayNames; // Sun, Mon, Tue, ...
-    protected int firstDayOfWeek; // 1 in France (monday), 7 in the US (sunday)
-    protected int lastDayOfWeek; // 7 in France (sunday), 6 in the US (saturday)
+    // Internal use : as DateTimeFormatter is not Serializable, it's rebuilt from the dateTimeFormatterPattern
+    private transient DateTimeFormatter dateTimeFormatter;
+    // Internal use : the following 4 values are computed once at init and if the locale changes.
+    protected transient String[] monthTexts; // Jan, Feb, Mar
+    protected transient String[] shortMonthTexts; // Jan, Feb, Mar
+    protected transient String[] weekDayNames; // Sun, Mon, Tue, ...
+    protected transient int firstDayOfWeek; // 1 in France (monday), 7 in the US (sunday)
+    protected transient int lastDayOfWeek; // 7 in France (sunday), 6 in the US (saturday)
 
     /**
      * True to disable weekends.
@@ -378,8 +380,10 @@ public class TuningDateField extends AbstractField<String> {
         if (locale == null) {
             locale = Locale.getDefault();
         }
-        if (defaultDateTimeFormatter) {
+        if (dateTimeFormatterPattern == null) {
             dateTimeFormatter = DateTimeFormat.shortDate().withLocale(locale);
+        } else {
+            dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(locale);
         }
         monthTexts = new DateFormatSymbols(locale).getMonths();
         shortMonthTexts = new DateFormatSymbols(locale).getShortMonths();
@@ -817,12 +821,14 @@ public class TuningDateField extends AbstractField<String> {
                 YearMonth selectedMonth = getSelectedMonth(relativeDateIndex);
                 setYearMonthDisplayed(selectedMonth);
                 setCalendarResolution(CalendarResolution.DAY);
+                fireEvent(new ResolutionChangeEvent(this, Resolution.DAY));
                 fireEvent(new MonthChangeEvent(this, selectedMonth));
             }
         } else if (calendarResolution.equals(CalendarResolution.YEAR)) {
             if (isYearEnabled(relativeDateIndex)) {
                 setYearMonthDisplayed(new YearMonth(relativeDateIndex, getYearMonthDisplayed().getMonthOfYear()));
                 setCalendarResolution(CalendarResolution.MONTH);
+                fireEvent(new ResolutionChangeEvent(this, Resolution.MONTH));
             }
         }
     }
@@ -865,8 +871,10 @@ public class TuningDateField extends AbstractField<String> {
     public void swithToHigherCalendarResolution() {
         if (calendarResolution.equals(CalendarResolution.DAY)) {
             setCalendarResolution(CalendarResolution.MONTH);
+            fireEvent(new ResolutionChangeEvent(this, Resolution.MONTH));
         } else if (calendarResolution.equals(CalendarResolution.MONTH)) {
             setCalendarResolution(CalendarResolution.YEAR);
+            fireEvent(new ResolutionChangeEvent(this, Resolution.YEAR));
         }
         markAsDirty();
     }
@@ -992,10 +1000,27 @@ public class TuningDateField extends AbstractField<String> {
     public void removeYearChangeListener(YearChangeListener listener) {
         removeListener(YearChangeEvent.class, listener, YEAR_CHANGE_METHOD);
     }
+    
+    public static final Method RESOLUTION_CHANGE_METHOD = ReflectTools.findMethod(ResolutionChangeListener.class, "resolutionChange",
+            ResolutionChangeEvent.class);
+
+    public void addResolutionChangeListener(ResolutionChangeListener listener) {
+        addListener(ResolutionChangeEvent.class, listener, RESOLUTION_CHANGE_METHOD);
+    }
+
+    public void removeResolutionChangeListener(ResolutionChangeListener listener) {
+        removeListener(ResolutionChangeEvent.class, listener, RESOLUTION_CHANGE_METHOD);
+    }
 
     @Override
     public Class<? extends String> getType() {
         return String.class;
+    }
+
+    // Used to rebuild transient variables
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        setupLocaleBasedStaticData(getLocale());
     }
 
     /**
@@ -1032,19 +1057,27 @@ public class TuningDateField extends AbstractField<String> {
     }
 
     /**
-     * @return the dateTimeFormatter
+     * Returns the {@link DateTimeFormatter} used.
+     * 
+     * @return  the {@link DateTimeFormatter} used.
      */
     public DateTimeFormatter getDateTimeFormatter() {
         return dateTimeFormatter;
     }
 
     /**
-     * @param dateTimeFormatter
-     *            the dateTimeFormatter to set
+     * @return the dateTimeFormatterPattern
      */
-    public void setDateTimeFormatter(final DateTimeFormatter dateTimeFormatter) {
-        this.dateTimeFormatter = dateTimeFormatter;
-        defaultDateTimeFormatter = false;
+    public String getDateTimeFormatterPattern() {
+        return dateTimeFormatterPattern;
+    }
+
+    /**
+     * @param dateTimeFormatterPattern
+     *            the dateTimeFormatterPattern to set
+     */
+    public void setDateTimeFormatterPattern(final String dateTimeFormatterPattern) {
+        this.dateTimeFormatterPattern = dateTimeFormatterPattern;
     }
 
     /**

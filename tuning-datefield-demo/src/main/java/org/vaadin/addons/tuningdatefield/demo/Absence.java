@@ -1,8 +1,13 @@
 package org.vaadin.addons.tuningdatefield.demo;
 
+import java.io.Serializable;
+
 import org.joda.time.LocalDate;
 
-public class Absence {
+public class Absence implements Serializable {
+
+    private static final long serialVersionUID = -2099622647087150878L;
+
     private LocalDate day;
     private AbsenceDuration duration;
 
@@ -68,17 +73,18 @@ public class Absence {
     }
 
     /**
-     * @param day the day to set
+     * @param day
+     *            the day to set
      */
     public void setDay(LocalDate day) {
         this.day = day;
     }
 
     /**
-     * @param duration the duration to set
+     * @param duration
+     *            the duration to set
      */
     public void setDuration(AbsenceDuration duration) {
         this.duration = duration;
-    }}
-
-
+    }
+}

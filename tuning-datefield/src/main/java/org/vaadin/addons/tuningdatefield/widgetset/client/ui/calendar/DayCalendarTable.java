@@ -42,6 +42,11 @@ public class DayCalendarTable extends AbstractCalendarTable {
     protected String getCellItemPrimaryStylename() {
         return "day";
     }
+    
+    @Override
+    protected String getRowPrimaryStylename() {
+        return "week";
+    }
 
     @Override
     protected void renderHeader() {
@@ -57,5 +62,7 @@ public class DayCalendarTable extends AbstractCalendarTable {
                     HasVerticalAlignment.ALIGN_MIDDLE);
         }
     }
+
+    
 
 }

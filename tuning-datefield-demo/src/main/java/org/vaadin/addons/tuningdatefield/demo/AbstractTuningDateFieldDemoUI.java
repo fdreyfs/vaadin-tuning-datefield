@@ -7,16 +7,17 @@ import static org.vaadin.addons.tuningdatefield.demo.Absence.AbsenceDuration.AFT
 import static org.vaadin.addons.tuningdatefield.demo.Absence.AbsenceDuration.FULLDAY;
 import static org.vaadin.addons.tuningdatefield.demo.Absence.AbsenceDuration.MORNING;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Locale;
 import java.util.Set;
 
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
-import org.joda.time.format.DateTimeFormat;
 import org.vaadin.addons.tuningdatefield.CellItemCustomizerAdapter;
-import org.vaadin.addons.tuningdatefield.TuningDateField;
 import org.vaadin.addons.tuningdatefield.InlineTuningDateField;
+import org.vaadin.addons.tuningdatefield.TuningDateField;
 import org.vaadin.addons.tuningdatefield.demo.Absence.AbsenceDuration;
 import org.vaadin.addons.tuningdatefield.event.CalendarOpenEvent;
 import org.vaadin.addons.tuningdatefield.event.CalendarOpenListener;
@@ -104,8 +105,7 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
             }
         });
         tuningDateFieldLayout.addComponent(toggleEnableButton);
-        
-        
+
         Button toggleDateTextReadOnlyButton = new Button("Enable/Disable dateText readOnly");
         toggleDateTextReadOnlyButton.addClickListener(new ClickListener() {
 
@@ -121,12 +121,12 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
         tuningDateFieldLayout.addComponent(toggleDateTextReadOnlyButton);
 
         layout.addComponent(tuningDateFieldLayout);
-        
+
         HorizontalLayout tuningInlineDateFieldLayout = new HorizontalLayout();
         tuningInlineDateFieldLayout.setSpacing(true);
         tuningInlineDateFieldLayout.setCaption("US InlineTuningDateField");
         final InlineTuningDateField tuningInlineDateField = new InlineTuningDateField();
-        tuningInlineDateField.setLocale(Locale.US);        
+        tuningInlineDateField.setLocale(Locale.US);
         tuningInlineDateFieldLayout.addComponent(tuningInlineDateField);
         VerticalLayout inlineInfosLayout = new VerticalLayout();
         Button toggleControlsEnabledButton = new Button("Enable/Disable controls");
@@ -144,11 +144,10 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
         inlineInfosLayout.addComponent(toggleControlsEnabledButton);
         final Label inlineSelectedDateLabel = new Label();
         tuningInlineDateField.addDateChangeListener(new DateChangeListener() {
-            
+
             @Override
             public void dateChange(DateChangeEvent event) {
-                inlineSelectedDateLabel.setValue("Date selected : "+event.getLocalDate());
-                
+                inlineSelectedDateLabel.setValue("Date selected : " + event.getLocalDate());
             }
         });
         inlineInfosLayout.addComponent(inlineSelectedDateLabel);
@@ -167,7 +166,7 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
         TuningDateField tuningDateFieldWithPattern = new TuningDateField(
                 "French TuningDateField with pattern dd/MM/yyyy");
         tuningDateFieldWithPattern.setLocale(Locale.FRANCE);
-        tuningDateFieldWithPattern.setDateTimeFormatter(DateTimeFormat.forPattern("dd/MM/yyyy"));
+        tuningDateFieldWithPattern.setDateTimeFormatterPattern("dd/MM/yyy");
         tuningDateFieldWithPattern.setConversionError("Date must on the following format dd/MM/yyyy");
         tuningDateFieldWithPattern.setConvertedValue(LocalDate.now());
         layout.addComponent(tuningDateFieldWithPattern);
@@ -190,13 +189,14 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
 
             }
         });
-        // We load absences for the month 
+        // We load absences for the month
         tuningDateFieldWithAbsences.addMonthChangeListener(new MonthChangeListener() {
-            
+
             @Override
             public void monthChange(MonthChangeEvent event) {
-                ((AbsenceCustomizer)tuningDateFieldWithAbsences.getCellItemCustomizer()).loadAbsences(event.getYearMonth());
-                
+                ((AbsenceCustomizer) tuningDateFieldWithAbsences.getCellItemCustomizer()).loadAbsences(event
+                        .getYearMonth());
+
             }
         });
         layout.addComponent(tuningDateFieldWithAbsences);
@@ -258,7 +258,8 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
 
     private static class HolidayCustomizer extends CellItemCustomizerAdapter {
 
-        private HolidayManager holidayManager;
+        // Not serializable -> won't work in GAE
+        private transient HolidayManager holidayManager;
         private Locale locale;
 
         public HolidayCustomizer(Locale locale) {
@@ -289,12 +290,17 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
                 return null;
             }
         }
+
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            holidayManager = HolidayManager.getInstance(locale.getCountry().toLowerCase());
+        }
     }
 
     private static class AbsenceCustomizer extends CellItemCustomizerAdapter {
 
         private Locale locale;
-        private HolidayManager holidayManager;
+        private transient HolidayManager holidayManager;
         private Set<Absence> absences;
 
         public AbsenceCustomizer(Locale locale, YearMonth yearMonth) {
@@ -308,7 +314,7 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
             // for the month we create 1 morning absence, 1 afternoon and 2 consecutive days
             LocalDate firstTuesday = new LocalDate(yearMonth.getYear(), yearMonth.getMonthOfYear(), 1)
                     .withDayOfWeek(DateTimeConstants.TUESDAY);
-            if(firstTuesday.getMonthOfYear() != yearMonth.getMonthOfYear()) {
+            if (firstTuesday.getMonthOfYear() != yearMonth.getMonthOfYear()) {
                 firstTuesday = firstTuesday.plusWeeks(1);
             }
             absences.add(new Absence(firstTuesday, MORNING));
@@ -364,6 +370,11 @@ public abstract class AbstractTuningDateFieldDemoUI extends UI {
             }
 
             return style;
+        }
+        
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            holidayManager = HolidayManager.getInstance(locale.getCountry().toLowerCase());
         }
     }
 

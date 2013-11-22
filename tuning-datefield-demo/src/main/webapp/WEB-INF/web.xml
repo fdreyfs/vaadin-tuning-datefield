@@ -18,7 +18,10 @@
 	
 	<servlet>
 		<servlet-name>DemoServlet</servlet-name>
+		<!-- For standard App Servers -->
 		<servlet-class>org.vaadin.addons.tuningdatefield.demo.DemoWebAppInitializer$MyServlet</servlet-class>
+		<!-- For Google App Engine -->
+<!-- 		<servlet-class>org.vaadin.addons.tuningdatefield.demo.DemoWebAppInitializer$MyGAEServlet</servlet-class> -->
 		<init-param>
 			<param-name>application</param-name>
 			<param-value>tuning-datefield</param-value>

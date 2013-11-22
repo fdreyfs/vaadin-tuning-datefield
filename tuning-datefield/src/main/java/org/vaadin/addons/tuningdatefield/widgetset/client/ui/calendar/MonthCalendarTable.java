@@ -34,5 +34,10 @@ public class MonthCalendarTable extends AbstractCalendarTable {
     protected String getCellItemPrimaryStylename() {
         return "month";
     }
+    
+    @Override
+    protected String getRowPrimaryStylename() {
+        return "months-row";
+    }
 
 }

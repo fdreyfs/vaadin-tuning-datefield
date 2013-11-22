@@ -86,6 +86,13 @@ public abstract class AbstractCalendarTable extends FlexTable {
     protected abstract String getCellItemPrimaryStylename();
 
     /**
+     * Returns the primary stylename of rows
+     * 
+     * @return the primary stylename of rows
+     */
+    protected abstract String getRowPrimaryStylename();
+
+    /**
      * The row number of controls (usually 0)
      * 
      * @return row number of controls (usually 0)
@@ -186,6 +193,20 @@ public abstract class AbstractCalendarTable extends FlexTable {
 
             getFlexCellFormatter().addStyleName(row, column, styleNamesBuilder.toString());
         }
+
+        // For each row add stylename
+        int numberOfCellItemRows = calendarItems.length / getNumberOfColumns();
+        int firstRow = getFirstCellItemsRow();
+        int lastRow = getFirstCellItemsRow() + numberOfCellItemRows - 1;
+        for (int i = firstRow; i <= lastRow; i++) {
+            getRowFormatter().setStyleName(i, getRowPrimaryStylename());
+            if (i == firstRow) {
+                getRowFormatter().addStyleName(i, "first-" + getRowPrimaryStylename());
+            }
+            if (i == lastRow) {
+                getRowFormatter().addStyleName(i, "last-" + getRowPrimaryStylename());
+            }
+        }
     }
 
     protected void renderHeader() {
@@ -284,8 +305,8 @@ public abstract class AbstractCalendarTable extends FlexTable {
     }
 
     public void cellItemClick(int itemIndex) {
-        tuningDateFieldCalendar
-                .fireEvent(new CalendarItemClickEvent(calendarItems[itemIndex].getRelativeDateIndex(), itemIndex));
+        tuningDateFieldCalendar.fireEvent(new CalendarItemClickEvent(calendarItems[itemIndex].getRelativeDateIndex(),
+                itemIndex));
     }
 
     public void previousControlClick() {

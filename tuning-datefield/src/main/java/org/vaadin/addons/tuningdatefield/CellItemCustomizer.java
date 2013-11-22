@@ -16,6 +16,8 @@
 
 package org.vaadin.addons.tuningdatefield;
 
+import java.io.Serializable;
+
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarResolution;
@@ -31,7 +33,7 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarRe
  * 
  * @see CellItemCustomizerAdapter
  */
-public interface CellItemCustomizer {
+public interface CellItemCustomizer extends Serializable {
 
     /**
      * Returns the style of the cell from its {@link LocalDate} representation in the {@link CalendarResolution#DAY}

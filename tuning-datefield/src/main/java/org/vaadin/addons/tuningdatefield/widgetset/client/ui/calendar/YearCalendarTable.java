@@ -39,5 +39,10 @@ public class YearCalendarTable extends AbstractCalendarTable {
     protected String getCellItemPrimaryStylename() {
         return "year";
     }
+    
+    @Override
+    protected String getRowPrimaryStylename() {
+        return "years-row";
+    }
 
 }

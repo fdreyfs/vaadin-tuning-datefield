@@ -27,6 +27,8 @@ import org.joda.time.YearMonth;
  */
 public class CellItemCustomizerAdapter implements CellItemCustomizer {
 
+    private static final long serialVersionUID = 8452408923351694490L;
+
     @Override
     public String getStyle(LocalDate date, TuningDateField tuningDateField) {
         return null;
