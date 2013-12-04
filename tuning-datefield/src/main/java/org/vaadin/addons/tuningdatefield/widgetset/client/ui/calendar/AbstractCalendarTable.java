@@ -200,13 +200,19 @@ public abstract class AbstractCalendarTable extends FlexTable {
         int lastRow = getFirstCellItemsRow() + numberOfCellItemRows - 1;
         for (int i = firstRow; i <= lastRow; i++) {
             getRowFormatter().setStyleName(i, getRowPrimaryStylename());
+            getCellFormatter().addStyleName(i, 0, "first-column");
+            getCellFormatter().addStyleName(i, getNumberOfColumns() - 1, "last-column");
             if (i == firstRow) {
-                getRowFormatter().addStyleName(i, "first-" + getRowPrimaryStylename());
+                getRowFormatter().addStyleName(i, "first-row");
             }
             if (i == lastRow) {
-                getRowFormatter().addStyleName(i, "last-" + getRowPrimaryStylename());
+                getRowFormatter().addStyleName(i, "last-row");
             }
         }
+
+        
+        
+
     }
 
     protected void renderHeader() {
