@@ -487,6 +487,8 @@ public class TuningDateField extends AbstractField<String> {
         // Get first day of week of last week's previous month
         if (getValue() != null) {
             ((TuningDateFieldState) getState()).setDisplayedDateText(getValue());
+        } else {
+            ((TuningDateFieldState) getState()).setDisplayedDateText(null);
         }
         ((TuningDateFieldState) getState()).setCalendarOpen(calendarOpen);
         ((TuningDateFieldState) getState()).setDateTextReadOnly(dateTextReadOnly);
@@ -791,7 +793,7 @@ public class TuningDateField extends AbstractField<String> {
         LocalDate currentValue = getLocalDate();
         if (currentValue != null) {
             yearMonthDisplayed = new YearMonth(currentValue);
-        } else {
+        } else if (yearMonthDisplayed == null) {
             yearMonthDisplayed = YearMonth.now();
         }
 
@@ -1000,9 +1002,9 @@ public class TuningDateField extends AbstractField<String> {
     public void removeYearChangeListener(YearChangeListener listener) {
         removeListener(YearChangeEvent.class, listener, YEAR_CHANGE_METHOD);
     }
-    
-    public static final Method RESOLUTION_CHANGE_METHOD = ReflectTools.findMethod(ResolutionChangeListener.class, "resolutionChange",
-            ResolutionChangeEvent.class);
+
+    public static final Method RESOLUTION_CHANGE_METHOD = ReflectTools.findMethod(ResolutionChangeListener.class,
+            "resolutionChange", ResolutionChangeEvent.class);
 
     public void addResolutionChangeListener(ResolutionChangeListener listener) {
         addListener(ResolutionChangeEvent.class, listener, RESOLUTION_CHANGE_METHOD);
@@ -1059,7 +1061,7 @@ public class TuningDateField extends AbstractField<String> {
     /**
      * Returns the {@link DateTimeFormatter} used.
      * 
-     * @return  the {@link DateTimeFormatter} used.
+     * @return the {@link DateTimeFormatter} used.
      */
     public DateTimeFormatter getDateTimeFormatter() {
         return dateTimeFormatter;
@@ -1078,6 +1080,11 @@ public class TuningDateField extends AbstractField<String> {
      */
     public void setDateTimeFormatterPattern(final String dateTimeFormatterPattern) {
         this.dateTimeFormatterPattern = dateTimeFormatterPattern;
+        if (dateTimeFormatterPattern == null) {
+            dateTimeFormatter = DateTimeFormat.shortDate().withLocale(getLocale());
+        } else {
+            dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(getLocale());
+        }
     }
 
     /**
