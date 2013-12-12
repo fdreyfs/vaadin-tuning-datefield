@@ -177,8 +177,8 @@ public class TuningDateField extends AbstractField<String> {
     protected transient String[] monthTexts; // Jan, Feb, Mar
     protected transient String[] shortMonthTexts; // Jan, Feb, Mar
     protected transient String[] weekDayNames; // Sun, Mon, Tue, ...
-    protected transient int firstDayOfWeek; // 1 in France (monday), 7 in the US (sunday)
-    protected transient int lastDayOfWeek; // 7 in France (sunday), 6 in the US (saturday)
+    protected transient Integer firstDayOfWeek; // 1 in France (monday), 7 in the US (sunday)
+    protected transient Integer lastDayOfWeek; // 7 in France (sunday), 6 in the US (saturday)
 
     /**
      * True to disable weekends.
@@ -387,9 +387,15 @@ public class TuningDateField extends AbstractField<String> {
         }
         monthTexts = new DateFormatSymbols(locale).getMonths();
         shortMonthTexts = new DateFormatSymbols(locale).getShortMonths();
-        firstDayOfWeek = getFirstDayOfWeek(locale);
-        lastDayOfWeek = getLastDayOfWeek(locale);
-        weekDayNames = getWeekDayNames(locale);
+
+        // These can be different locale that the translation one
+        if (firstDayOfWeek == null) {
+            firstDayOfWeek = getFirstDayOfWeek(locale);
+        }
+        if (lastDayOfWeek == null) {
+            lastDayOfWeek = getLastDayOfWeek(locale);
+        }
+        weekDayNames = getWeekDayNames(locale, firstDayOfWeek);
     }
 
     /**
@@ -918,11 +924,10 @@ public class TuningDateField extends AbstractField<String> {
      *            the locale
      * @return the week header names in the order of appearance in the calendar.
      */
-    protected String[] getWeekDayNames(Locale locale) {
+    protected String[] getWeekDayNames(Locale locale, int firstDayOfWeek) {
         String[] weekHeaderNames = new String[7];
 
         String[] weekDays = DateFormatSymbols.getInstance(locale).getShortWeekdays();
-        int firstDayOfWeek = getFirstDayOfWeek(locale);
         for (int i = 0; i < 7; i++) {
             weekHeaderNames[i] = weekDays[(firstDayOfWeek + i) % 7 + 1];
         }
@@ -1023,6 +1028,30 @@ public class TuningDateField extends AbstractField<String> {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         setupLocaleBasedStaticData(getLocale());
+    }
+
+    /**
+     * Sets the first day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br />
+     * If not defined it will used the one from the Locale.
+     * 
+     * @param firstDayOfWeek
+     *            the first day of week
+     */
+    public void setFirstDayOfWeek(int firstDayOfWeek) {
+        this.firstDayOfWeek = firstDayOfWeek;
+        markAsDirty();
+    }
+
+    /**
+     * Sets the last day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br />
+     * If not defined it will used the one from the Locale.
+     * 
+     * @param day
+     *            the last day of week
+     */
+    public void setLastDayOfWeek(int lastDayOfWeek) {
+        this.lastDayOfWeek = lastDayOfWeek;
+        markAsDirty();
     }
 
     /**
