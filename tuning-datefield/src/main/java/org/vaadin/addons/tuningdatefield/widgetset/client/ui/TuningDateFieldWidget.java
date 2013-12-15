@@ -151,6 +151,7 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
     }
 
     public void redrawCalendar() {
+        updateStyleNames();
         calendar.redraw(calendarOpen);
         // HACK : We need to hide/show so that the popup overlay is repainted
         if (popup.isShowing()) {
@@ -258,6 +259,18 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
             calendarToggle.setStyleName(getStylePrimaryName() + "-button");
             popup.setStyleName("tuning-datefield-popup");
             calendar.setStyleName("tuning-datefield-calendar");
+
+            // We update the popup and calendar stylenames
+            String styleName = getStyleName();
+            if (styleName != null) {
+                String[] styles = styleName.split(" ");
+                for (String style : styles) {
+                    if (!style.startsWith("v-datefield") && !style.startsWith("v-widget")) {
+                        popup.addStyleName(style + "-popup");
+                        calendar.addStyleName(style + "-calendar");
+                    }
+                }
+            }
         }
     }
 
