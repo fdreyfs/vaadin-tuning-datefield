@@ -188,6 +188,16 @@ public class TuningDateField extends AbstractField<String> {
     protected boolean weekendDisabled = true;
 
     /**
+     * <code>true</code> do disable previous month (default to true)
+     */
+    protected boolean previousMonthDisabled = true;
+
+    /**
+     * <code>true</code> do disable next month (default to true)
+     */
+    protected boolean nextMonthDisabled = true;
+
+    /**
      * True to enable/disabled controls
      * 
      * @see #setControlsEnabled(boolean)
@@ -208,7 +218,7 @@ public class TuningDateField extends AbstractField<String> {
     private int yearDisplayed;
 
     // Internal use
-    private boolean calendarOpen;
+    protected boolean calendarOpen;
 
     public TuningDateField() {
         init();
@@ -557,10 +567,10 @@ public class TuningDateField extends AbstractField<String> {
 
             if (date.isBefore(firstDayOfMonth)) {
                 style.append("previousmonth ");
-                calendarItems[i].setEnabled(false);
+                calendarItems[i].setEnabled(!isPreviousMonthDisabled());
             } else if (date.isAfter(lastDayOfMonth)) {
                 style.append("nextmonth ");
-                calendarItems[i].setEnabled(false);
+                calendarItems[i].setEnabled(!isNextMonthDisabled());
             } else {
                 style.append("currentmonth ");
                 calendarItems[i].setEnabled(isDateEnabled(date));
@@ -1191,6 +1201,22 @@ public class TuningDateField extends AbstractField<String> {
     public void setDateTextReadOnly(boolean dateTextReadOnly) {
         this.dateTextReadOnly = dateTextReadOnly;
         markAsDirty();
+    }
+
+    public boolean isPreviousMonthDisabled() {
+        return previousMonthDisabled;
+    }
+
+    public void setPreviousMonthDisabled(boolean previousMonthDisabled) {
+        this.previousMonthDisabled = previousMonthDisabled;
+    }
+
+    public boolean isNextMonthDisabled() {
+        return nextMonthDisabled;
+    }
+
+    public void setNextMonthDisabled(boolean nextMonthDisabled) {
+        this.nextMonthDisabled = nextMonthDisabled;
     }
 
 }

@@ -33,6 +33,10 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarRe
 public class InlineTuningDateField extends TuningDateField {
 
     private static final long serialVersionUID = 4586853667789785236L;
+    
+    public InlineTuningDateField() {
+        calendarOpen = true;
+    }
 
     protected void registerRpc() {
         registerRpc(new InlineTuningDateFieldRpc() {
