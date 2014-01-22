@@ -34,8 +34,10 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.ResolutionCo
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
+import com.vaadin.client.MouseEventDetailsBuilder;
 import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.ui.AbstractFieldConnector;
+import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.shared.ui.Connect;
 
 @Connect(org.vaadin.addons.tuningdatefield.TuningDateField.class)
@@ -48,7 +50,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
         super.init();
 
         final TuningDateFieldRpc rpc = getRpcProxy(TuningDateFieldRpc.class);
-        
+
         getWidget().addDateTextChangedHandler(new DateTextChangeHandler() {
 
             @Override
@@ -78,7 +80,9 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
 
             @Override
             public void onCalendarItemClick(CalendarItemClickEvent event) {
-                rpc.calendarItemClicked(event.getRelativeDateIndex());
+                MouseEventDetails mouseDetails = MouseEventDetailsBuilder.buildMouseEventDetails(event.getClickEvent()
+                        .getNativeEvent(), getWidget().getElement());
+                rpc.calendarItemClicked(event.getRelativeDateIndex(), mouseDetails);
             }
         });
 
@@ -116,7 +120,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
         getWidget().setDateTextReadOnly(getState().isDateTextReadOnly());
         getWidget().getDateTextBox().setReadOnly(getState().readOnly);
         getWidget().getCalendarToggle().setVisible(!getState().readOnly);
-        
+
         getWidget().setDisplayedDateText(getState().getDisplayedDateText());
         getWidget().setCalendarOpen(getState().isCalendarOpen());
         if (getState().isCalendarOpen()) {
@@ -133,7 +137,6 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
         }
 
         super.onStateChanged(stateChangeEvent);
-
     }
 
     @Override

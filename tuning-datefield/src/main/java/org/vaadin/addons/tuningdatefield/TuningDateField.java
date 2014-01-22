@@ -34,6 +34,8 @@ import org.vaadin.addons.tuningdatefield.event.CalendarOpenEvent;
 import org.vaadin.addons.tuningdatefield.event.CalendarOpenListener;
 import org.vaadin.addons.tuningdatefield.event.DateChangeEvent;
 import org.vaadin.addons.tuningdatefield.event.DateChangeListener;
+import org.vaadin.addons.tuningdatefield.event.DayClickEvent;
+import org.vaadin.addons.tuningdatefield.event.DayClickListener;
 import org.vaadin.addons.tuningdatefield.event.MonthChangeEvent;
 import org.vaadin.addons.tuningdatefield.event.MonthChangeListener;
 import org.vaadin.addons.tuningdatefield.event.ResolutionChangeEvent;
@@ -51,6 +53,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.data.util.converter.Converter.ConversionException;
 import com.vaadin.data.validator.RangeValidator;
+import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.TextField;
 import com.vaadin.util.ReflectTools;
@@ -338,8 +341,8 @@ public class TuningDateField extends AbstractField<String> {
             }
 
             @Override
-            public void calendarItemClicked(Integer relativeDateIndex) {
-                onCalendarItemClicked(relativeDateIndex);
+            public void calendarItemClicked(Integer relativeDateIndex,  MouseEventDetails mouseDetails) {
+                onCalendarItemClicked(relativeDateIndex, mouseDetails);
             }
 
             @Override
@@ -826,10 +829,11 @@ public class TuningDateField extends AbstractField<String> {
      * @param relativeDateIndex
      *            is dayOfMonth in day resolution, monthOfYear in month resolution, year in year resolution
      */
-    protected void onCalendarItemClicked(int relativeDateIndex) {
+    protected void onCalendarItemClicked(int relativeDateIndex, MouseEventDetails mouseDetails) {
         if (calendarResolution.equals(CalendarResolution.DAY)) {
             if (isDateEnabled(getSelectedDate(relativeDateIndex))) { // We check the date is not disabled
                 LocalDate selectedDate = getSelectedDate(relativeDateIndex);
+                fireEvent(new DayClickEvent(this, mouseDetails, selectedDate));
                 setConvertedValue(selectedDate);
                 // Should now close the calendar
                 calendarOpen = false;
@@ -977,12 +981,27 @@ public class TuningDateField extends AbstractField<String> {
         }
         return ((calendar.getFirstDayOfWeek() + 4) % 7) + 1;
     }
+    
+    public static final Method DAY_CLICK_METHOD = ReflectTools.findMethod(DayClickListener.class,
+            "dayClick", DayClickEvent.class);
+
+    public void addDayClickListener(DayClickListener listener) {
+        addListener(DayClickEvent.class, listener, DAY_CLICK_METHOD);
+    }
+    
+    public void removeItemClickListener(DayClickListener listener) {
+        removeListener(DayClickEvent.class, listener, DAY_CLICK_METHOD);
+    }
 
     public static final Method CALENDAR_OPEN_METHOD = ReflectTools.findMethod(CalendarOpenListener.class,
             "calendarOpen", CalendarOpenEvent.class);
 
     public void addCalendarOpenListener(CalendarOpenListener listener) {
         addListener(CalendarOpenEvent.class, listener, CALENDAR_OPEN_METHOD);
+    }
+    
+    public void removeCalendarOpenListener(CalendarOpenListener listener) {
+        removeListener(CalendarOpenEvent.class, listener, CALENDAR_OPEN_METHOD);
     }
 
     public static final Method DATE_CHANGE_METHOD = ReflectTools.findMethod(DateChangeListener.class, "dateChange",

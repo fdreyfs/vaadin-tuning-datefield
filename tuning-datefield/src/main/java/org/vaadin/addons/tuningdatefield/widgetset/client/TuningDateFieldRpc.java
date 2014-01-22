@@ -16,6 +16,7 @@
 
 package org.vaadin.addons.tuningdatefield.widgetset.client;
 
+import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.shared.communication.ServerRpc;
 
 public interface TuningDateFieldRpc extends ServerRpc {
@@ -25,8 +26,10 @@ public interface TuningDateFieldRpc extends ServerRpc {
      * 
      * @param relativeDateIndex
      *            (dayOfMonth, monthOfYear or year depending on the resolution) the day of relativeDateIndex
+     * @param mouseDetails
+     *            the mouse event details on click
      */
-    public void calendarItemClicked(Integer relativeDateIndex);
+    public void calendarItemClicked(Integer relativeDateIndex, MouseEventDetails mouseDetails);
 
     /**
      * Called when the date text is changed by the user

@@ -17,18 +17,21 @@
 
 package org.vaadin.addons.tuningdatefield.widgetset.client.ui.events;
 
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.GwtEvent;
 
 public class CalendarItemClickEvent extends GwtEvent<CalendarItemClickHandler> {
 
     private static Type<CalendarItemClickHandler> TYPE;
 
-    private Integer relativeDateIndex;
-    private Integer itemIndex;
+    private final Integer relativeDateIndex;
+    private final Integer itemIndex;
+    private final ClickEvent clickEvent;
 
-    public CalendarItemClickEvent(Integer relativeDateIndex, Integer itemIndex) {
+    public CalendarItemClickEvent(Integer relativeDateIndex, Integer itemIndex, ClickEvent clickEvent) {
         this.relativeDateIndex = relativeDateIndex;
         this.itemIndex = itemIndex;
+        this.clickEvent = clickEvent;
     }
 
     @Override
@@ -55,14 +58,7 @@ public class CalendarItemClickEvent extends GwtEvent<CalendarItemClickHandler> {
         return relativeDateIndex;
     }
 
-    /**
-     * @param relativeDateIndex
-     *            the relativeDateIndex to set
-     */
-    public void setRelativeDateIndex(Integer relativeDateIndex) {
-        this.relativeDateIndex = relativeDateIndex;
-    }
-
+  
     /**
      * @return the itemIndex
      */
@@ -70,12 +66,9 @@ public class CalendarItemClickEvent extends GwtEvent<CalendarItemClickHandler> {
         return itemIndex;
     }
 
-    /**
-     * @param itemIndex
-     *            the itemIndex to set
-     */
-    public void setItemIndex(Integer itemIndex) {
-        this.itemIndex = itemIndex;
+    public ClickEvent getClickEvent() {
+        return clickEvent;
     }
+
 
 }

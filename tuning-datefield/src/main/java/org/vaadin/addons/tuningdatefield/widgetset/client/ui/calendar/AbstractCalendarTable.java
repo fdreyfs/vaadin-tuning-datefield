@@ -154,7 +154,7 @@ public abstract class AbstractCalendarTable extends FlexTable {
                         selectedCell = clickedCell;
                         getFlexCellFormatter().addStyleName(selectedCell.getRowIndex(), selectedCell.getCellIndex(),
                                 "selected");
-                        cellItemClick(itemIndex);
+                        cellItemClick(itemIndex, event);
                     }
                 } else if (clickedCell.getRowIndex() == getControlsRow()) {
                     if (clickedCell.getCellIndex() == getPreviousControlColumn()) {
@@ -310,9 +310,9 @@ public abstract class AbstractCalendarTable extends FlexTable {
         return (row - getFirstCellItemsRow()) * getNumberOfColumns() + column;
     }
 
-    public void cellItemClick(int itemIndex) {
+    public void cellItemClick(int itemIndex, ClickEvent event) {
         tuningDateFieldCalendar.fireEvent(new CalendarItemClickEvent(calendarItems[itemIndex].getRelativeDateIndex(),
-                itemIndex));
+                itemIndex, event));
     }
 
     public void previousControlClick() {

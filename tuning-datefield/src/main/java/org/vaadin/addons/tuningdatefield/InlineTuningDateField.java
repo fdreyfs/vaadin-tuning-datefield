@@ -22,6 +22,8 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.InlineTuningDateFieldR
 import org.vaadin.addons.tuningdatefield.widgetset.client.TuningDateFieldState;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarResolution;
 
+import com.vaadin.shared.MouseEventDetails;
+
 /**
  * An inline version of the {@link TuningDateField} which displays the calendar.
  * 
@@ -44,8 +46,8 @@ public class InlineTuningDateField extends TuningDateField {
             private static final long serialVersionUID = -6765204929172002847L;
 
             @Override
-            public void calendarItemClicked(Integer relativeDateIndex) {
-                onCalendarItemClicked(relativeDateIndex);
+            public void calendarItemClicked(Integer relativeDateIndex, MouseEventDetails mouseDetails) {
+                onCalendarItemClicked(relativeDateIndex, mouseDetails);
             }
 
             @Override

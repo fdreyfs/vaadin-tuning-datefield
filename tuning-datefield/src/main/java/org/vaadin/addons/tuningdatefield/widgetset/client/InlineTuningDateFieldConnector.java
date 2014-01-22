@@ -16,7 +16,6 @@
 
 package org.vaadin.addons.tuningdatefield.widgetset.client;
 
-
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.TuningDateFieldCalendarWidget;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickEvent;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickHandler;
@@ -29,8 +28,10 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.ResolutionCo
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
+import com.vaadin.client.MouseEventDetailsBuilder;
 import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.ui.AbstractFieldConnector;
+import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.shared.ui.Connect;
 
 @Connect(org.vaadin.addons.tuningdatefield.InlineTuningDateField.class)
@@ -47,7 +48,9 @@ public class InlineTuningDateFieldConnector extends AbstractFieldConnector {
 
             @Override
             public void onCalendarItemClick(CalendarItemClickEvent event) {
-                rpc.calendarItemClicked(event.getRelativeDateIndex());
+                MouseEventDetails mouseDetails = MouseEventDetailsBuilder.buildMouseEventDetails(event.getClickEvent()
+                        .getNativeEvent(), getWidget().getElement());
+                rpc.calendarItemClicked(event.getRelativeDateIndex(), mouseDetails);
             }
         });
 
