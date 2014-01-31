@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar;
 
 import java.io.Serializable;
@@ -36,7 +35,8 @@ public class CalendarItem implements Serializable {
     private Integer index;
 
     /**
-     * can be dayOfMonth, monthOfYear, or year
+     * can be dayOfMonth, monthOfYear, or year.<br />
+     * In the case of dayOfMonth, it is negative if not current month displayed
      */
     private Integer relativeDateIndex;
 
@@ -72,8 +72,7 @@ public class CalendarItem implements Serializable {
     @Override
     public String toString() {
         return "CalendarItem [index=" + index + ", relativeDateIndex=" + relativeDateIndex + ", style=" + style
-                + ", enabled=" + enabled + ", tooltip=" + tooltip + ", current=" + current
-                + ", text=" + text + "]";
+                + ", enabled=" + enabled + ", tooltip=" + tooltip + ", current=" + current + ", text=" + text + "]";
     }
 
     /**

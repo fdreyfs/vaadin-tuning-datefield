@@ -26,10 +26,12 @@ public interface TuningDateFieldRpc extends ServerRpc {
      * 
      * @param relativeDateIndex
      *            (dayOfMonth, monthOfYear or year depending on the resolution) the day of relativeDateIndex
+     * @param itemIndex
+     *            the itemIndex clicked
      * @param mouseDetails
      *            the mouse event details on click
      */
-    public void calendarItemClicked(Integer relativeDateIndex, MouseEventDetails mouseDetails);
+    public void calendarItemClicked(Integer itemIndex, Integer relativeDateIndex, MouseEventDetails mouseDetails);
 
     /**
      * Called when the date text is changed by the user

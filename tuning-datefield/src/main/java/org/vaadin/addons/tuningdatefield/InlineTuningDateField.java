@@ -46,8 +46,8 @@ public class InlineTuningDateField extends TuningDateField {
             private static final long serialVersionUID = -6765204929172002847L;
 
             @Override
-            public void calendarItemClicked(Integer relativeDateIndex, MouseEventDetails mouseDetails) {
-                onCalendarItemClicked(relativeDateIndex, mouseDetails);
+            public void calendarItemClicked(Integer itemIndex, Integer relativeDateIndex, MouseEventDetails mouseDetails) {
+                onCalendarItemClicked(itemIndex, relativeDateIndex, mouseDetails);
             }
 
             @Override

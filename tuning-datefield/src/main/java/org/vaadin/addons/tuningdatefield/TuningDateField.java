@@ -223,6 +223,9 @@ public class TuningDateField extends AbstractField<String> {
     // Internal use
     protected boolean calendarOpen;
 
+    // Internal user: the current calendarItems displayed
+    protected CalendarItem[] calendarItems;
+
     public TuningDateField() {
         init();
         setValue(null);
@@ -341,8 +344,8 @@ public class TuningDateField extends AbstractField<String> {
             }
 
             @Override
-            public void calendarItemClicked(Integer relativeDateIndex,  MouseEventDetails mouseDetails) {
-                onCalendarItemClicked(relativeDateIndex, mouseDetails);
+            public void calendarItemClicked(Integer itemIndex, Integer relativeDateIndex, MouseEventDetails mouseDetails) {
+                onCalendarItemClicked(itemIndex, relativeDateIndex, mouseDetails);
             }
 
             @Override
@@ -523,16 +526,17 @@ public class TuningDateField extends AbstractField<String> {
                 ((TuningDateFieldState) getState()).setCalendarResolutionText(displayedMonthText + " "
                         + yearMonthDisplayed.getYear());
                 ((TuningDateFieldState) getState()).setWeekHeaderNames(weekDayNames);
-                ((TuningDateFieldState) getState()).setCalendarItems(buildDayItems());
+                calendarItems = buildDayItems();
             } else if (calendarResolution.equals(CalendarResolution.MONTH)) {
-                ((TuningDateFieldState) getState()).setCalendarItems(buildMonthItems());
+                calendarItems = buildMonthItems();
                 ((TuningDateFieldState) getState()).setCalendarResolutionText(Integer.toString(yearMonthDisplayed
                         .getYear()));
             } else if (calendarResolution.equals(CalendarResolution.YEAR)) {
-                ((TuningDateFieldState) getState()).setCalendarItems(buildYearItems());
+                calendarItems = buildYearItems();
                 ((TuningDateFieldState) getState()).setCalendarResolutionText(getCalendarFirstYear() + " - "
                         + getCalendarLastYear());
             }
+            ((TuningDateFieldState) getState()).setCalendarItems(calendarItems);
         }
 
     }
@@ -555,7 +559,12 @@ public class TuningDateField extends AbstractField<String> {
             calendarItems[i] = new CalendarItem();
 
             calendarItems[i].setIndex(i);
-            calendarItems[i].setRelativeDateIndex(date.getDayOfMonth());
+            if (date.getMonthOfYear() == yearMonthDisplayed.getMonthOfYear()) {
+                calendarItems[i].setRelativeDateIndex(date.getDayOfMonth());
+            } else {
+                calendarItems[i].setRelativeDateIndex(-date.getDayOfMonth());
+            }
+
             calendarItems[i].setText(Integer.toString(date.getDayOfMonth()));
 
             StringBuilder style = new StringBuilder();
@@ -796,8 +805,27 @@ public class TuningDateField extends AbstractField<String> {
         return yearDisplayed - yearDisplayed % 10 + 10;
     }
 
+    /**
+     * Returns the selected date from the dayOfMonth. <br />
+     * If dayOfMonth is negative, selected date is on previous or next month according its value.
+     * 
+     * @param dayOfMonth
+     *            the day of month
+     * @return the selected date from the dayOfMonth.
+     */
     private LocalDate getSelectedDate(int dayOfMonth) {
-        return yearMonthDisplayed.toLocalDate(dayOfMonth);
+        if (dayOfMonth >= 0) {
+            return yearMonthDisplayed.toLocalDate(dayOfMonth);
+        } else {
+            if (dayOfMonth < -7) {
+                // previous month
+                return new LocalDate(yearMonthDisplayed.minusMonths(1).toLocalDate(-dayOfMonth));
+            } else {
+                // next month
+                return new LocalDate(yearMonthDisplayed.plusMonths(1).toLocalDate(-dayOfMonth));
+            }
+        }
+
     }
 
     private YearMonth getSelectedMonth(int monthOfYear) {
@@ -829,7 +857,7 @@ public class TuningDateField extends AbstractField<String> {
      * @param relativeDateIndex
      *            is dayOfMonth in day resolution, monthOfYear in month resolution, year in year resolution
      */
-    protected void onCalendarItemClicked(int relativeDateIndex, MouseEventDetails mouseDetails) {
+    protected void onCalendarItemClicked(int itemIndex, int relativeDateIndex, MouseEventDetails mouseDetails) {
         if (calendarResolution.equals(CalendarResolution.DAY)) {
             if (isDateEnabled(getSelectedDate(relativeDateIndex))) { // We check the date is not disabled
                 LocalDate selectedDate = getSelectedDate(relativeDateIndex);
@@ -981,14 +1009,14 @@ public class TuningDateField extends AbstractField<String> {
         }
         return ((calendar.getFirstDayOfWeek() + 4) % 7) + 1;
     }
-    
-    public static final Method DAY_CLICK_METHOD = ReflectTools.findMethod(DayClickListener.class,
-            "dayClick", DayClickEvent.class);
+
+    public static final Method DAY_CLICK_METHOD = ReflectTools.findMethod(DayClickListener.class, "dayClick",
+            DayClickEvent.class);
 
     public void addDayClickListener(DayClickListener listener) {
         addListener(DayClickEvent.class, listener, DAY_CLICK_METHOD);
     }
-    
+
     public void removeItemClickListener(DayClickListener listener) {
         removeListener(DayClickEvent.class, listener, DAY_CLICK_METHOD);
     }
@@ -999,7 +1027,7 @@ public class TuningDateField extends AbstractField<String> {
     public void addCalendarOpenListener(CalendarOpenListener listener) {
         addListener(CalendarOpenEvent.class, listener, CALENDAR_OPEN_METHOD);
     }
-    
+
     public void removeCalendarOpenListener(CalendarOpenListener listener) {
         removeListener(CalendarOpenEvent.class, listener, CALENDAR_OPEN_METHOD);
     }

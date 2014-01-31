@@ -82,7 +82,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
             public void onCalendarItemClick(CalendarItemClickEvent event) {
                 MouseEventDetails mouseDetails = MouseEventDetailsBuilder.buildMouseEventDetails(event.getClickEvent()
                         .getNativeEvent(), getWidget().getElement());
-                rpc.calendarItemClicked(event.getRelativeDateIndex(), mouseDetails);
+                rpc.calendarItemClicked(event.getItemIndex(), event.getRelativeDateIndex(), mouseDetails);
             }
         });
 
