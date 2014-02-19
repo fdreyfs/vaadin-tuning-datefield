@@ -19,6 +19,8 @@ package org.vaadin.addons.tuningdatefield.widgetset.client.ui;
 import java.util.logging.Logger;
 
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.TuningDateFieldCalendarWidget;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarAttachedEvent;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarAttachedHandler;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarClosedEvent;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarClosedHandler;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarOpenEvent;
@@ -135,6 +137,16 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
         popup.setOwner(this);
 
         popup.setWidget(calendar);
+        // When the calendar widget is set we need to update
+        // popup position
+        calendar.addCalendarAttachedHandler(new CalendarAttachedHandler() {
+            @Override
+            public void onCalendarAttached(CalendarAttachedEvent event) {
+                updatePopupPosition();
+            }
+        });
+            
+            
         popup.addCloseHandler(this);
 
         sinkEvents(Event.ONKEYDOWN);
@@ -165,54 +177,58 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
         if (!calendarOpen && !readOnly) {
             fireEvent(new CalendarOpenEvent());
             calendar.redraw(calendarOpen);
-
             // clear previous values
             popup.setWidth("");
             popup.setHeight("");
-            // This has been copied from Vaadin VPopupCalendar (shame on me...)
-            popup.setPopupPositionAndShow(new PositionCallback() {
-                @Override
-                public void setPosition(int offsetWidth, int offsetHeight) {
-                    final int w = offsetWidth;
-                    final int h = offsetHeight;
-                    final int browserWindowWidth = Window.getClientWidth() + Window.getScrollLeft();
-                    final int browserWindowHeight = Window.getClientHeight() + Window.getScrollTop();
-                    int t = calendarToggle.getAbsoluteTop();
-                    int l = calendarToggle.getAbsoluteLeft();
-
-                    // Add a little extra space to the right to avoid
-                    // problems with IE7 scrollbars and to make it look
-                    // nicer.
-                    int extraSpace = 30;
-
-                    boolean overflowRight = false;
-                    if (l + +w + extraSpace > browserWindowWidth) {
-                        overflowRight = true;
-                        // Part of the popup is outside the browser window
-                        // (to the right)
-                        l = browserWindowWidth - w - extraSpace;
-                    }
-
-                    if (t + h + calendarToggle.getOffsetHeight() + 30 > browserWindowHeight) {
-                        // Part of the popup is outside the browser window
-                        // (below)
-                        t = browserWindowHeight - h - calendarToggle.getOffsetHeight() - 30;
-                        if (!overflowRight) {
-                            // Show to the right of the popup button unless we
-                            // are in the lower right corner of the screen
-                            l += calendarToggle.getOffsetWidth();
-                        }
-                    }
-
-                    popup.setPopupPosition(l, t + calendarToggle.getOffsetHeight() + 2);
-
-                }
-            });
+            updatePopupPosition();
         } else {
             Logger.getLogger(TuningDateFieldWidget.class.getName()).warning("Cannot reopen popup, it is already open!");
         }
     }
 
+    public void updatePopupPosition() {
+
+
+        // This has been copied from Vaadin VPopupCalendar (shame on me...)
+        popup.setPopupPositionAndShow(new PositionCallback() {
+            @Override
+            public void setPosition(int offsetWidth, int offsetHeight) {
+                final int w = offsetWidth;
+                final int h = offsetHeight;
+                final int browserWindowWidth = Window.getClientWidth() + Window.getScrollLeft();
+                final int browserWindowHeight = Window.getClientHeight() + Window.getScrollTop();
+                int t = calendarToggle.getAbsoluteTop();
+                int l = calendarToggle.getAbsoluteLeft();
+
+                // Add a little extra space to the right to avoid
+                // problems with IE7 scrollbars and to make it look
+                // nicer.
+                int extraSpace = 30;
+
+                boolean overflowRight = false;
+                if (l + +w + extraSpace > browserWindowWidth) {
+                    overflowRight = true;
+                    // Part of the popup is outside the browser window
+                    // (to the right)
+                    l = browserWindowWidth - w - extraSpace;
+                }
+
+                if (t + h + calendarToggle.getOffsetHeight() + 30 > browserWindowHeight) {
+                    // Part of the popup is outside the browser window
+                    // (below)
+                    t = browserWindowHeight - h - calendarToggle.getOffsetHeight() - 30;
+                    if (!overflowRight) {
+                        // Show to the right of the popup button unless we
+                        // are in the lower right corner of the screen
+                        l += calendarToggle.getOffsetWidth();
+                    }
+                }
+
+                popup.setPopupPosition(l, t + calendarToggle.getOffsetHeight() + 2);
+            }
+        });
+    }
+    
     @Override
     public void onChange(ChangeEvent event) {
         if (!dateTextBox.getText().equals("")) {

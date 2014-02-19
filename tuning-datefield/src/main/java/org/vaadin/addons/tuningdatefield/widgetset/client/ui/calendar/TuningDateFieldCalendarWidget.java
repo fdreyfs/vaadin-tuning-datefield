@@ -17,6 +17,8 @@
 package org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar;
 
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.TuningDateFieldBundle;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarAttachedEvent;
+import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarAttachedHandler;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickEvent;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.CalendarItemClickHandler;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.events.NextControlClickEvent;
@@ -84,8 +86,10 @@ public class TuningDateFieldCalendarWidget extends SimplePanel {
                 break;
             }
             setWidget(currentCalendarTable);
+            // We notify the calendar is attached so that we update
+            // the popup position
+            fireEvent(new CalendarAttachedEvent());
         }
-
     }
     
     public HandlerRegistration addCalendarItemClickHandler(CalendarItemClickHandler calendarItemClickHandler) {
@@ -105,6 +109,10 @@ public class TuningDateFieldCalendarWidget extends SimplePanel {
         return addHandler(resolutionControlClickHandler, ResolutionControlClickEvent.getType());
     }
 
+    public HandlerRegistration addCalendarAttachedHandler(CalendarAttachedHandler calendarAttachedHandler) {
+        return addHandler(calendarAttachedHandler, CalendarAttachedEvent.getType());
+    }
+    
     /**
      * @return the focusOutListener
      */
