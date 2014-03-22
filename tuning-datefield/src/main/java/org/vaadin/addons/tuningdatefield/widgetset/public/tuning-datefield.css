@@ -1,7 +1,19 @@
 
+.tuning-datefield.v-readonly {
+	background: none;
+	border: none;
+}
+.v-datefield-textfield.gwt-TextBox-readonly {
+	background: none;
+	border: none;
+}
 .tuning-datefield input[readonly] {
-	cursor: not-allowed;
-	background-color: #eeeeee;
+	/*cursor: not-allowed;*/
+	/*background-color: #eeeeee;*/
+}
+
+.tuning-datefield button {
+	background-repeat: no-repeat;
 }
  
 .tuning-datefield-calendar {	
@@ -49,6 +61,11 @@
 .tuning-datefield-calendar .now {
 	border: 1px solid orange;
 }
+
+.v-datefield-popupcalendar.v-readonly {
+	padding-right: 0px;
+}
+	
 
 /* ********************************* */
 /* Styles for DAY resolution */
