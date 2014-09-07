@@ -79,7 +79,7 @@ import com.vaadin.util.ReflectTools;
  * The {@link TuningDateField} displays a {@link TextField} with proper LocalDate converter and a toggle button to
  * display a calendar.<br>
  * The default converter will use a short format . You can set your own formatter using
- * {@link #setDateTimeFormatter(DateTimeFormatter)}.
+ * {@link #setDateTimeFormatter(String)}.
  * </p>
  * <p>
  * To acess the {@link LocalDate} value of this field use the {@link #getLocalDate()} method which will return
@@ -115,7 +115,7 @@ import com.vaadin.util.ReflectTools;
  * </p>
  * 
  * <p>
- * The primary stylename of the calendar is </code>tuning-datefield-calendar</code><br>
+ * The primary stylename of the calendar is <code>tuning-datefield-calendar</code><br>
  * <br>
  * 
  * CSS styles for calendar {@link CalendarResolution#DAY} :
@@ -818,7 +818,9 @@ public class TuningDateField extends AbstractField<String> {
     }
 
     /**
-     * If current year displayed is 1954, the range is 1949-1960
+     * If current year displayed is 1954, the range is 1949-1960.
+     * 
+     * @return the calendar first year.
      */
     protected int getCalendarFirstYear() {
         return yearDisplayed - yearDisplayed % 10 - 1;
@@ -826,6 +828,8 @@ public class TuningDateField extends AbstractField<String> {
 
     /**
      * If current year displayed is 1954, the range is 1949-1960
+     * 
+     * @return the calendar last year.
      */
     protected int getCalendarLastYear() {
         return yearDisplayed - yearDisplayed % 10 + 10;
@@ -880,8 +884,12 @@ public class TuningDateField extends AbstractField<String> {
     /**
      * Called when user clicked on cell item
      * 
+     * @param itemIndex
+     *            the item index
      * @param relativeDateIndex
      *            is dayOfMonth in day resolution, monthOfYear in month resolution, year in year resolution
+     * @param mouseDetails
+     *            the mouse details info
      */
     protected void onCalendarItemClicked(int itemIndex, int relativeDateIndex, MouseEventDetails mouseDetails) {
         if (calendarResolution.equals(CalendarResolution.DAY)) {
@@ -990,6 +998,8 @@ public class TuningDateField extends AbstractField<String> {
      * 
      * @param locale
      *            the locale
+     * @param firstDayOfWeek
+     *            the first day of week
      * @return the week header names in the order of appearance in the calendar.
      */
     protected String[] getWeekDayNames(Locale locale, int firstDayOfWeek) {
@@ -1129,7 +1139,7 @@ public class TuningDateField extends AbstractField<String> {
      * Sets the last day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br>
      * If not defined it will used the one from the Locale.
      * 
-     * @param day
+     * @param lastDayOfWeek
      *            the last day of week
      */
     public void setLastDayOfWeek(int lastDayOfWeek) {
