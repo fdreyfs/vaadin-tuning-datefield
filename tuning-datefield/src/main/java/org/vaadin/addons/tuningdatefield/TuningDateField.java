@@ -73,18 +73,18 @@ import com.vaadin.util.ReflectTools;
  * tuningDateField.setCellItemCustomizer(myTuningDateFieldCustomizer); // To customize cells of calendar
  * </pre>
  * 
- * </p>
+ * 
  * 
  * <p>
  * The {@link TuningDateField} displays a {@link TextField} with proper LocalDate converter and a toggle button to
  * display a calendar.<br>
  * The default converter will use a short format . You can set your own formatter using
- * {@link #setDateTimeFormatter(String)}.
- * </p>
+ * {@link #setDateTimeFormatterPattern(String)}.
+ * 
  * <p>
  * To acess the {@link LocalDate} value of this field use the {@link #getLocalDate()} method which will return
  * <code>null</code> if the text value is null or if it is invalid.
- * </p>
+ * 
  * 
  * <p>
  * You can customize cells of the calendar using the {@link CellItemCustomizer} and its convenient default
@@ -112,7 +112,7 @@ import com.vaadin.util.ReflectTools;
  * }
  * </pre>
  * 
- * </p>
+ * 
  * 
  * <p>
  * The primary stylename of the calendar is <code>tuning-datefield-calendar</code><br>
@@ -146,7 +146,7 @@ import com.vaadin.util.ReflectTools;
  * <li>disabled : if cell is disabled</li>
  * </ul>
  * 
- * </p>
+ * 
  * 
  * 
  * @author Frederic.Dreyfus
@@ -421,6 +421,8 @@ public class TuningDateField extends AbstractField<String> {
      *            the start date (included). <code>null</code> for unlimited
      * @param endDate
      *            the end date (included). <code>null</code> for unlimited
+     * @param errorMessage
+     *            the error message
      */
     public void setDateRange(LocalDate startDate, LocalDate endDate, String errorMessage) {
         if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
