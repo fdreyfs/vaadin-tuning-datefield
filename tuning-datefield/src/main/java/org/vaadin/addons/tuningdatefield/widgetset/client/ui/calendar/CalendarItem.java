@@ -19,7 +19,7 @@ package org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar;
 import java.io.Serializable;
 
 /**
- * A calendar item which is sent from the server to the calendar.<br />
+ * A calendar item which is sent from the server to the calendar.<br>
  * It will hold all data for each cell's rendering.
  * 
  * @author Frederic.Dreyfus
@@ -35,7 +35,7 @@ public class CalendarItem implements Serializable {
     private Integer index;
 
     /**
-     * can be dayOfMonth, monthOfYear, or year.<br />
+     * can be dayOfMonth, monthOfYear, or year.<br>
      * In the case of dayOfMonth, it is negative if not current month displayed
      */
     private Integer relativeDateIndex;

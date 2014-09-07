@@ -23,9 +23,9 @@ import org.joda.time.YearMonth;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarResolution;
 
 /**
- * An interface that allows to customize the calendar cell items of the {@link TuningDateField}.<br />
+ * An interface that allows to customize the calendar cell items of the {@link TuningDateField}.<br>
  * As there are 3 different calendars with their respective resolutions (day, month, year) the customizer can be applied
- * to all these calendars.<br />
+ * to all these calendars.<br>
  * Consider using {@link CellItemCustomizerAdapter} which defines default implementations for all 3 calendar
  * resolutions.
  * 
@@ -142,5 +142,41 @@ public interface CellItemCustomizer extends Serializable {
      * @return the <code>true</code> if the cell is enabled, else returns <code>false</code>
      */
     public boolean isEnabled(int year, TuningDateField tuningDateField);
+
+    /**
+     * Renders day cell item. If returned value is <code>null</code> it will fall back to default implementation which
+     * renders the day number.
+     * 
+     * @param date
+     *            the date representing the cell
+     * @param tuningDateField
+     *            the {@link TuningDateField}
+     * @return the rendered day cell
+     */
+    public String renderDay(LocalDate date, TuningDateField tuningDateField);
+
+    /**
+     * Renders month cell item. If returned value is <code>null</code> it will fall back to default implementation which
+     * renders the localized month abbreviation.
+     * 
+     * @param yearMonth
+     *            the yearMonth representing the cell
+     * @param tuningDateField
+     *            the {@link TuningDateField}
+     * @return the rendered yearMonth cell
+     */
+    public String renderMonth(YearMonth yearMonth, TuningDateField tuningDateField);
+
+    /**
+     * Renders year cell item. If returned value is <code>null</code> it will fall back to default implementation which
+     * renders the year number.
+     * 
+     * @param year
+     *            the year representing the cell
+     * @param tuningDateField
+     *            the {@link TuningDateField}
+     * @return the rendered year cell
+     */
+    public String renderYear(int year, TuningDateField tuningDateField);
 
 }

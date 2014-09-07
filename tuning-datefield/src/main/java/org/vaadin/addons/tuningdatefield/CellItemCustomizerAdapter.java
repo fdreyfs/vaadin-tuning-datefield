@@ -74,4 +74,19 @@ public class CellItemCustomizerAdapter implements CellItemCustomizer {
         return true;
     }
 
+    @Override
+    public String renderDay(LocalDate date, TuningDateField tuningDateField) {
+        return null;
+    }
+
+    @Override
+    public String renderMonth(YearMonth yearMonth, TuningDateField tuningDateField) {
+        return null;
+    }
+
+    @Override
+    public String renderYear(int year, TuningDateField tuningDateField) {
+        return null;
+    }
+
 }

@@ -27,7 +27,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlexTable;
 
 /**
- * A calendar table that holds cell items and controls.<br />
+ * A calendar table that holds cell items and controls.<br>
  * This table is ususally composed of :
  * <ol>
  * <li>A row for controls with 3 cells (previous, resolution and next control)</li>
@@ -175,7 +175,7 @@ public abstract class AbstractCalendarTable extends FlexTable {
             int row = getRow(cellItem.getIndex());
             int column = getColumn(cellItem.getIndex());
 
-            setText(row, column, cellItem.getText());
+            setHTML(row, column, cellItem.getText());
 
             StringBuilder styleNamesBuilder = new StringBuilder(getCellItemPrimaryStylename());
             if (cellItem.isEnabled()) {

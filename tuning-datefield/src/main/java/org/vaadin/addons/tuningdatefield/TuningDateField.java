@@ -59,9 +59,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.util.ReflectTools;
 
 /**
- * A date picker with a Joda {@link LocalDate} as model.<br />
+ * A date picker with a Joda {@link LocalDate} as model.<br>
  * <p>
- * Usage:<br />
+ * Usage:<br>
  * 
  * <pre>
  * TuningDateField tuningDateField = new TuningDateField();
@@ -77,7 +77,7 @@ import com.vaadin.util.ReflectTools;
  * 
  * <p>
  * The {@link TuningDateField} displays a {@link TextField} with proper LocalDate converter and a toggle button to
- * display a calendar.<br />
+ * display a calendar.<br>
  * The default converter will use a short format . You can set your own formatter using
  * {@link #setDateTimeFormatter(DateTimeFormatter)}.
  * </p>
@@ -88,9 +88,9 @@ import com.vaadin.util.ReflectTools;
  * 
  * <p>
  * You can customize cells of the calendar using the {@link CellItemCustomizer} and its convenient default
- * {@link CellItemCustomizerAdapter}. <br />
+ * {@link CellItemCustomizerAdapter}. <br>
  * Example of a customizer which will apply even style to even days and odd styles for odd days in the calendar with
- * {@link CalendarResolution#DAY} resolution.<br />
+ * {@link CalendarResolution#DAY} resolution.<br>
  * It will also disable the 25th of December 2013:
  * 
  * <pre>
@@ -115,8 +115,8 @@ import com.vaadin.util.ReflectTools;
  * </p>
  * 
  * <p>
- * The primary stylename of the calendar is </code>tuning-datefield-calendar</code><br />
- * <br />
+ * The primary stylename of the calendar is </code>tuning-datefield-calendar</code><br>
+ * <br>
  * 
  * CSS styles for calendar {@link CalendarResolution#DAY} :
  * <ul>
@@ -485,7 +485,7 @@ public class TuningDateField extends AbstractField<String> {
     }
 
     /**
-     * <code>true</code> if date is a week-end, else returns <code>false</code>. <br />
+     * <code>true</code> if date is a week-end, else returns <code>false</code>. <br>
      * Override this method for custom week-ends days.
      * 
      * @param date
@@ -565,7 +565,16 @@ public class TuningDateField extends AbstractField<String> {
                 calendarItems[i].setRelativeDateIndex(-date.getDayOfMonth());
             }
 
-            calendarItems[i].setText(Integer.toString(date.getDayOfMonth()));
+            String calendarItemContent = null;
+            if (cellItemCustomizer != null) {
+                calendarItemContent = cellItemCustomizer.renderDay(date, this);
+            }
+
+            // fallback to default value
+            if (calendarItemContent == null) {
+                calendarItemContent = Integer.toString(date.getDayOfMonth());
+            }
+            calendarItems[i].setText(calendarItemContent);
 
             StringBuilder style = new StringBuilder();
 
@@ -666,7 +675,16 @@ public class TuningDateField extends AbstractField<String> {
                 calendarItems[i].setStyle(computedStyle);
             }
 
-            calendarItems[i].setText(shortMonthTexts[i]);
+            String calendarItemContent = null;
+            if (cellItemCustomizer != null) {
+                calendarItemContent = cellItemCustomizer.renderMonth(currentYearMonthValue, this);
+            }
+            // fallback to default value
+            if (calendarItemContent == null) {
+                calendarItemContent = shortMonthTexts[i];
+            }
+
+            calendarItems[i].setText(calendarItemContent);
         }
         return calendarItems;
     }
@@ -722,7 +740,15 @@ public class TuningDateField extends AbstractField<String> {
                 calendarItems[i].setStyle(computedStyle);
             }
 
-            calendarItems[i].setText(Integer.toString(year));
+            String calendarItemContent = null;
+            if (cellItemCustomizer != null) {
+                calendarItemContent = cellItemCustomizer.renderYear(year, this);
+            }
+            // fallback to default value
+            if (calendarItemContent == null) {
+                calendarItemContent = Integer.toString(year);
+            }
+            calendarItems[i].setText(calendarItemContent);
 
         }
         return calendarItems;
@@ -806,7 +832,7 @@ public class TuningDateField extends AbstractField<String> {
     }
 
     /**
-     * Returns the selected date from the dayOfMonth. <br />
+     * Returns the selected date from the dayOfMonth. <br>
      * If dayOfMonth is negative, selected date is on previous or next month according its value.
      * 
      * @param dayOfMonth
@@ -958,7 +984,7 @@ public class TuningDateField extends AbstractField<String> {
     }
 
     /**
-     * Returns the week header names in the order of appearance in the calendar.<br />
+     * Returns the week header names in the order of appearance in the calendar.<br>
      * Ex for {@link Locale#FRANCE} : [lun., mar., mer., jeu., ven., sam., dim.] Ex for {@link Locale#US} : [Sun, Mon,
      * Tue, Wed, Thu, Fri, Sat]
      * 
@@ -1088,7 +1114,7 @@ public class TuningDateField extends AbstractField<String> {
     }
 
     /**
-     * Sets the first day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br />
+     * Sets the first day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br>
      * If not defined it will used the one from the Locale.
      * 
      * @param firstDayOfWeek
@@ -1100,7 +1126,7 @@ public class TuningDateField extends AbstractField<String> {
     }
 
     /**
-     * Sets the last day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br />
+     * Sets the last day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br>
      * If not defined it will used the one from the Locale.
      * 
      * @param day
