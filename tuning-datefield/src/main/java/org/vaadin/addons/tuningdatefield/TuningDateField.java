@@ -201,7 +201,7 @@ public class TuningDateField extends AbstractField<String> {
     protected boolean nextMonthDisabled = true;
 
     /**
-     * True to enable/disabled controls
+     * True to enable controls
      * 
      * @see #setControlsEnabled(boolean)
      */
@@ -430,14 +430,17 @@ public class TuningDateField extends AbstractField<String> {
                     + " before start date " + startDate);
         }
 
-        // set validator for date range
-        if (dateRangeValidator != null) {
-            removeValidator(dateRangeValidator);
-        }
+        removeDateRange();
         dateRangeValidator = new RangeValidator<LocalDate>(errorMessage, LocalDate.class, startDate, endDate);
         addValidator(dateRangeValidator);
 
         markAsDirty();
+    }
+    
+    public void removeDateRange() {
+        if (dateRangeValidator != null) {
+            removeValidator(dateRangeValidator);
+        }
     }
 
     /**
