@@ -48,6 +48,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.TextBox;
@@ -63,7 +64,7 @@ import com.vaadin.client.ui.VTextField;
  * 
  */
 public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHandler<PopupPanel>, ClickHandler,
-        ChangeHandler {
+        ChangeHandler, Focusable {
 
     /**
      * We reuse Vaadin class so that the textfield/toogle button look the same as other Vaadin fields
@@ -145,8 +146,7 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
                 updatePopupPosition();
             }
         });
-            
-            
+
         popup.addCloseHandler(this);
 
         sinkEvents(Event.ONKEYDOWN);
@@ -188,7 +188,6 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
 
     public void updatePopupPosition() {
 
-
         // This has been copied from Vaadin VPopupCalendar (shame on me...)
         popup.setPopupPositionAndShow(new PositionCallback() {
             @Override
@@ -228,7 +227,7 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
             }
         });
     }
-    
+
     @Override
     public void onChange(ChangeEvent event) {
         if (!dateTextBox.getText().equals("")) {
@@ -385,6 +384,26 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
      */
     public TuningDateFieldCalendarWidget getCalendar() {
         return calendar;
+    }
+
+    @Override
+    public int getTabIndex() {
+        return dateTextBox.getTabIndex();
+    }
+
+    @Override
+    public void setAccessKey(char key) {
+        dateTextBox.setAccessKey(key);
+    }
+
+    @Override
+    public void setFocus(boolean focused) {
+        dateTextBox.setFocus(focused);
+    }
+
+    @Override
+    public void setTabIndex(int index) {
+        dateTextBox.setTabIndex(index);
     }
 
 }

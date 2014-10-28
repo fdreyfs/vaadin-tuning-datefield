@@ -53,6 +53,12 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.data.util.converter.Converter.ConversionException;
 import com.vaadin.data.validator.RangeValidator;
+import com.vaadin.event.FieldEvents.BlurEvent;
+import com.vaadin.event.FieldEvents.BlurListener;
+import com.vaadin.event.FieldEvents.BlurNotifier;
+import com.vaadin.event.FieldEvents.FocusEvent;
+import com.vaadin.event.FieldEvents.FocusListener;
+import com.vaadin.event.FieldEvents.FocusNotifier;
 import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.TextField;
@@ -152,7 +158,7 @@ import com.vaadin.util.ReflectTools;
  * @author Frederic.Dreyfus
  * 
  */
-public class TuningDateField extends AbstractField<String> {
+public class TuningDateField extends AbstractField<String> implements BlurNotifier, FocusNotifier {
 
     private static final long serialVersionUID = 5261965803349750329L;
 
@@ -436,7 +442,7 @@ public class TuningDateField extends AbstractField<String> {
 
         markAsDirty();
     }
-    
+
     public void removeDateRange() {
         if (dateRangeValidator != null) {
             removeValidator(dateRangeValidator);
@@ -1305,6 +1311,73 @@ public class TuningDateField extends AbstractField<String> {
 
     public void setNextMonthDisabled(boolean nextMonthDisabled) {
         this.nextMonthDisabled = nextMonthDisabled;
+    }
+    
+    @Override
+    public void addFocusListener(FocusListener listener) {
+        addListener(FocusEvent.EVENT_ID, FocusEvent.class, listener,
+                FocusListener.focusMethod);
+    }
+
+    /**
+     * @deprecated As of 7.0, replaced by
+     *             {@link #addFocusListener(FocusListener)}
+     **/
+    @Override
+    @Deprecated
+    public void addListener(FocusListener listener) {
+        addFocusListener(listener);
+    }
+
+    @Override
+    public void removeFocusListener(FocusListener listener) {
+        removeListener(FocusEvent.EVENT_ID, FocusEvent.class, listener);
+    }
+
+    /**
+     * @deprecated As of 7.0, replaced by
+     *             {@link #removeFocusListener(FocusListener)}
+     **/
+    @Override
+    @Deprecated
+    public void removeListener(FocusListener listener) {
+        removeFocusListener(listener);
+    }
+
+    @Override
+    public void addBlurListener(BlurListener listener) {
+        addListener(BlurEvent.EVENT_ID, BlurEvent.class, listener,
+                BlurListener.blurMethod);
+    }
+
+    /**
+     * @deprecated As of 7.0, replaced by {@link #addBlurListener(BlurListener)}
+     **/
+    @Override
+    @Deprecated
+    public void addListener(BlurListener listener) {
+        addBlurListener(listener);
+    }
+
+    @Override
+    public void removeBlurListener(BlurListener listener) {
+        removeListener(BlurEvent.EVENT_ID, BlurEvent.class, listener);
+    }
+
+    /**
+     * @deprecated As of 7.0, replaced by
+     *             {@link #removeBlurListener(BlurListener)}
+     **/
+    @Override
+    @Deprecated
+    public void removeListener(BlurListener listener) {
+        removeBlurListener(listener);
+    }
+    
+    @Override
+    public void focus() {
+        System.err.println("FOCUS");
+        super.focus();
     }
 
 }
