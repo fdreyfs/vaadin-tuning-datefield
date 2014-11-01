@@ -50,6 +50,7 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarRe
 
 import com.google.gwt.thirdparty.guava.common.base.Objects;
 import com.vaadin.data.Property;
+import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.data.util.converter.Converter.ConversionException;
 import com.vaadin.data.validator.RangeValidator;
@@ -61,6 +62,7 @@ import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.event.FieldEvents.FocusNotifier;
 import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.ui.AbstractField;
+import com.vaadin.ui.DateField.UnparsableDateString;
 import com.vaadin.ui.TextField;
 import com.vaadin.util.ReflectTools;
 
@@ -229,8 +231,13 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
     // Internal use
     protected boolean calendarOpen;
 
-    // Internal user: the current calendarItems displayed
+    // Internal use: the current calendarItems displayed
     protected CalendarItem[] calendarItems;
+
+    // Internal use : true when UI has a parsable valid string
+    boolean uiHasValidDateString = true;
+
+    private String parseErrorMessage = "Date format not recognized";
 
     public TuningDateField() {
         init();
@@ -356,7 +363,21 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
             @Override
             public void dateTextChanged(String dateText) {
-                setValue(dateText);
+                try {
+                    // First try to convert to model in order to check if text is parseable
+                    if (dateText != null) {
+                        dateTimeFormatter.parseLocalDate(dateText);
+                    }
+
+                    // If parsing text is successful, set value
+                    uiHasValidDateString = true;
+                    setComponentError(null);
+                    setValue(dateText);
+                } catch (IllegalArgumentException e) {
+                    // Date is not parseable, keep previous value
+                    uiHasValidDateString = false;
+                    markAsDirty();
+                }
             }
 
             @Override
@@ -550,6 +571,29 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
             ((TuningDateFieldState) getState()).setCalendarItems(calendarItems);
         }
 
+    }
+
+    @Override
+    public void validate() throws InvalidValueException {
+        /*
+         * To work properly in form we must throw exception if there is currently a parsing error in the datefield.
+         * Parsing error is kind of an internal validator.
+         */
+        if (!uiHasValidDateString) {
+            throw new UnparsableDateString(parseErrorMessage);
+        }
+        super.validate();
+    }
+
+    @Override
+    protected void setInternalValue(String newValue) {
+        if (!uiHasValidDateString) {
+            // clear component error and parsing flag
+            setComponentError(null);
+            uiHasValidDateString = true;
+        }
+
+        super.setInternalValue(newValue);
     }
 
     protected CalendarItem[] buildDayItems() {
@@ -1312,16 +1356,14 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
     public void setNextMonthDisabled(boolean nextMonthDisabled) {
         this.nextMonthDisabled = nextMonthDisabled;
     }
-    
+
     @Override
     public void addFocusListener(FocusListener listener) {
-        addListener(FocusEvent.EVENT_ID, FocusEvent.class, listener,
-                FocusListener.focusMethod);
+        addListener(FocusEvent.EVENT_ID, FocusEvent.class, listener, FocusListener.focusMethod);
     }
 
     /**
-     * @deprecated As of 7.0, replaced by
-     *             {@link #addFocusListener(FocusListener)}
+     * @deprecated As of 7.0, replaced by {@link #addFocusListener(FocusListener)}
      **/
     @Override
     @Deprecated
@@ -1335,8 +1377,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
     }
 
     /**
-     * @deprecated As of 7.0, replaced by
-     *             {@link #removeFocusListener(FocusListener)}
+     * @deprecated As of 7.0, replaced by {@link #removeFocusListener(FocusListener)}
      **/
     @Override
     @Deprecated
@@ -1346,8 +1387,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
     @Override
     public void addBlurListener(BlurListener listener) {
-        addListener(BlurEvent.EVENT_ID, BlurEvent.class, listener,
-                BlurListener.blurMethod);
+        addListener(BlurEvent.EVENT_ID, BlurEvent.class, listener, BlurListener.blurMethod);
     }
 
     /**
@@ -1365,19 +1405,25 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
     }
 
     /**
-     * @deprecated As of 7.0, replaced by
-     *             {@link #removeBlurListener(BlurListener)}
+     * @deprecated As of 7.0, replaced by {@link #removeBlurListener(BlurListener)}
      **/
     @Override
     @Deprecated
     public void removeListener(BlurListener listener) {
         removeBlurListener(listener);
     }
-    
+
     @Override
     public void focus() {
-        System.err.println("FOCUS");
         super.focus();
+    }
+
+    public String getParseErrorMessage() {
+        return parseErrorMessage;
+    }
+
+    public void setParseErrorMessage(String parseErrorMessage) {
+        this.parseErrorMessage = parseErrorMessage;
     }
 
 }

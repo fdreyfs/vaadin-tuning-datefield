@@ -232,6 +232,8 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
     public void onChange(ChangeEvent event) {
         if (!dateTextBox.getText().equals("")) {
             fireEvent(new DateTextChangeEvent(dateTextBox.getText()));
+        } else {
+            fireEvent(new DateTextChangeEvent(null));
         }
     }
 
