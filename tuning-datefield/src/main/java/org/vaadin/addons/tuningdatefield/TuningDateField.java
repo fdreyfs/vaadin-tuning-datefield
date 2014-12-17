@@ -1187,6 +1187,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      */
     public void setFirstDayOfWeek(int firstDayOfWeek) {
         this.firstDayOfWeek = firstDayOfWeek;
+        setupLocaleBasedStaticData(getLocale());
         markAsDirty();
     }
 
