@@ -1200,6 +1200,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      */
     public void setLastDayOfWeek(int lastDayOfWeek) {
         this.lastDayOfWeek = lastDayOfWeek;
+        setupLocaleBasedStaticData(getLocale());
         markAsDirty();
     }
 
