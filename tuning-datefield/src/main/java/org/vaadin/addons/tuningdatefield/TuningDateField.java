@@ -421,7 +421,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
     private void setupLocaleBasedStaticData(Locale locale) {
         if (locale == null) {
-            locale = Locale.getDefault();
+            locale = super.getLocale();
         }
         if (dateTimeFormatterPattern == null) {
             dateTimeFormatter = DateTimeFormat.shortDate().withLocale(locale);
