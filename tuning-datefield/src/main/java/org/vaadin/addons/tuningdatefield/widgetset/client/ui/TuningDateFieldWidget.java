@@ -134,7 +134,7 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
         Roles.getTextboxRole().setAriaControlsProperty(dateTextBox.getElement(), Id.of(calendar.getElement()));
         Roles.getButtonRole().setAriaControlsProperty(calendarToggle.getElement(), Id.of(calendar.getElement()));
 
-        popup = new VOverlay(true, true, true);
+        popup = new VOverlay(true, false, true);
         popup.setOwner(this);
 
         popup.setWidget(calendar);
