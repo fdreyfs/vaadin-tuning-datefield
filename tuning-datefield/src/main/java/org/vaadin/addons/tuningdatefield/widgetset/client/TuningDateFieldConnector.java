@@ -117,8 +117,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
 
         getWidget().getDateTextBox().setEnabled(getState().enabled);
         getWidget().getCalendarToggle().setEnabled(getState().enabled);
-        getWidget().setDateTextReadOnly(getState().isDateTextReadOnly());
-        getWidget().getDateTextBox().setReadOnly(getState().readOnly);
+        getWidget().setDateTextReadOnly(getState().readOnly || getState().isDateTextReadOnly());
         getWidget().getCalendarToggle().setVisible(!getState().readOnly);
 
         getWidget().setDisplayedDateText(getState().getDisplayedDateText());
