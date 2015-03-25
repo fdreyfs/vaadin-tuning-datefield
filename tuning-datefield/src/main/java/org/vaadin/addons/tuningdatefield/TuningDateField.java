@@ -239,6 +239,11 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
     private String parseErrorMessage = "Date format not recognized";
 
+    /**
+     * True to dsiplay a fixed number of day rows in the calendar day resolution (even with a row of next month days)
+     */
+    private boolean displayFixedNumberOfDayRows;
+
     public TuningDateField() {
         init();
         setValue(null);
@@ -866,7 +871,18 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
         int numberOfDaysUntilLastDayOfWeek = (calendarLastDayOfWeek - lastDayOfMonth.getDayOfWeek() + 7) % 7;
 
-        return lastDayOfMonth.plusDays(numberOfDaysUntilLastDayOfWeek);
+        LocalDate lastDay = lastDayOfMonth.plusDays(numberOfDaysUntilLastDayOfWeek);
+        if (isDisplayFixedNumberOfDayRows()) {
+            // Always display 6 day rows
+            int numberOfDays = Days.daysBetween(getCalendarFirstDay(), lastDay).getDays() + 1;
+            if (numberOfDays / 7 < 5) {
+                lastDay = lastDay.plusDays(14);
+            } else if (numberOfDays / 7 < 6) {
+                lastDay = lastDay.plusDays(7);
+            }
+        }
+
+        return lastDay;
 
     }
 
@@ -1433,6 +1449,21 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
     public void setParseErrorMessage(String parseErrorMessage) {
         this.parseErrorMessage = parseErrorMessage;
+    }
+
+    public boolean isDisplayFixedNumberOfDayRows() {
+        return displayFixedNumberOfDayRows;
+    }
+
+    /**
+     * Set to <code>true</code> to fix the number of lines in the calendar day resolution (even with a row of next month
+     * days)
+     * 
+     * @param fixedNumberOfLines
+     *            <code>true</code> to fix the number of lines in the calendar day resolution
+     */
+    public void setDisplayFixedNumberOfDayRows(boolean displayFixedNumberOfDayRows) {
+        this.displayFixedNumberOfDayRows = displayFixedNumberOfDayRows;
     }
 
 }

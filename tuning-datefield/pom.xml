@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>tuning-datefield</artifactId>
-	<version>0.12.0</version>
+	<version>0.13.0</version>
 	<packaging>jar</packaging>
 	<name>Tuning DateField Add-on</name>
 	<inceptionYear>2013</inceptionYear>
