@@ -1459,7 +1459,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      * Set to <code>true</code> to fix the number of lines in the calendar day resolution (even with a row of next month
      * days)
      * 
-     * @param fixedNumberOfLines
+     * @param displayFixedNumberOfDayRows
      *            <code>true</code> to fix the number of lines in the calendar day resolution
      */
     public void setDisplayFixedNumberOfDayRows(boolean displayFixedNumberOfDayRows) {
