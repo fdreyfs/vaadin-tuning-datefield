@@ -415,11 +415,20 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         });
     }
 
+    /**
+     * Sets the locale of this component.<br>
+     * When setting the locale the first day of week and last day of weeks are reset to <code>locale</code> default
+     * values. <br>
+     * You need to call {@link #setFirstDayOfWeek(int)} or {@link #setLastDayOfWeek(int)} after calling
+     * {@link #setLocale(Locale)} if you want to override the first or last day of week.
+     */
     public void setLocale(Locale locale) {
         super.setLocale(locale);
         // reinitialize static data based on locale (monthText, day names, etc...)
         boolean localeModified = Objects.equal(getLocale(), locale);
         if (localeModified) {
+            firstDayOfWeek = null;
+            lastDayOfWeek = null;
             setupLocaleBasedStaticData(locale);
         }
     }
@@ -1203,26 +1212,36 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
     /**
      * Sets the first day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br>
-     * If not defined it will used the one from the Locale.
+     * If not defined it will used the one from the Locale. <br>
+     * Use 0 or negative value to use default Locale setting.
      * 
      * @param firstDayOfWeek
-     *            the first day of week
+     *            the first day of week (from 1 to 7). Use 0 or negative value to use default Locale setting.
      */
     public void setFirstDayOfWeek(int firstDayOfWeek) {
-        this.firstDayOfWeek = firstDayOfWeek;
+        if (firstDayOfWeek <= 0) {
+            this.firstDayOfWeek = null;
+        } else {
+            this.firstDayOfWeek = firstDayOfWeek;
+        }
         setupLocaleBasedStaticData(getLocale());
         markAsDirty();
     }
 
     /**
      * Sets the last day of week (1=Monday, 2=Tuesday,...,7=SUNDAY). <br>
-     * If not defined it will used the one from the Locale.
+     * If not defined it will used the one from the Locale. <br>
+     * Use 0 or negative value to use default Locale setting.
      * 
      * @param lastDayOfWeek
-     *            the last day of week
+     *            the last day of week. Use 0 or negative value to use default Locale setting.
      */
     public void setLastDayOfWeek(int lastDayOfWeek) {
-        this.lastDayOfWeek = lastDayOfWeek;
+        if (lastDayOfWeek <= 0) {
+            this.lastDayOfWeek = null;
+        } else {
+            this.lastDayOfWeek = lastDayOfWeek;
+        }
         setupLocaleBasedStaticData(getLocale());
         markAsDirty();
     }
