@@ -61,6 +61,7 @@ import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.event.FieldEvents.FocusNotifier;
 import com.vaadin.shared.MouseEventDetails;
+import com.vaadin.shared.util.SharedUtil;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.DateField.UnparsableDateString;
 import com.vaadin.ui.TextField;
@@ -182,8 +183,6 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
     // The dateTimeFormatter pattern (ex: yyyy/MM/dd)
     protected String dateTimeFormatterPattern = null;
 
-    // Internal use : as DateTimeFormatter is not Serializable, it's rebuilt from the dateTimeFormatterPattern
-    private transient DateTimeFormatter dateTimeFormatter;
     // Internal use : the following 4 values are computed once at init and if the locale changes.
     protected transient String[] monthTexts; // Jan, Feb, Mar
     protected transient String[] shortMonthTexts; // Jan, Feb, Mar
@@ -307,9 +306,15 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
                 }
                 LocalDate modelValue = null;
                 try {
+                    DateTimeFormatter dateTimeFormatter;
+                    if (dateTimeFormatterPattern == null) {
+                        dateTimeFormatter = DateTimeFormat.shortDate().withLocale(locale);
+                    } else {
+                        dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(locale);
+                    }
                     modelValue = dateTimeFormatter.parseLocalDate(value);
                 } catch (IllegalArgumentException e) {
-                    throw new ConversionException("Cannot convert to model");
+                    throw new ConversionException("Cannot convert to model", e);
                 }
                 return modelValue;
             }
@@ -322,9 +327,15 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
                 }
                 String presentationValue = null;
                 try {
+                    DateTimeFormatter dateTimeFormatter;
+                    if (dateTimeFormatterPattern == null) {
+                        dateTimeFormatter = DateTimeFormat.shortDate().withLocale(locale);
+                    } else {
+                        dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(locale);
+                    }
                     presentationValue = dateTimeFormatter.print(value);
                 } catch (IllegalArgumentException e) {
-                    throw new ConversionException("Cannot convert to presentation");
+                    throw new ConversionException("Cannot convert to presentation", e);
                 }
 
                 return presentationValue;
@@ -371,6 +382,12 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
                 try {
                     // First try to convert to model in order to check if text is parseable
                     if (dateText != null) {
+                        DateTimeFormatter dateTimeFormatter;
+                        if (dateTimeFormatterPattern == null) {
+                            dateTimeFormatter = DateTimeFormat.shortDate().withLocale(getLocale());
+                        } else {
+                            dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(getLocale());
+                        }
                         dateTimeFormatter.parseLocalDate(dateText);
                     }
 
@@ -423,9 +440,12 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      * {@link #setLocale(Locale)} if you want to override the first or last day of week.
      */
     public void setLocale(Locale locale) {
-        super.setLocale(locale);
+        Locale currentLocale = getLocale();
+        // Reset dateTimeFormatPattern
+        setDateTimeFormatterPattern(null);
+        super.setLocale(locale);   
         // reinitialize static data based on locale (monthText, day names, etc...)
-        boolean localeModified = Objects.equal(getLocale(), locale);
+        boolean localeModified = !Objects.equal(currentLocale, locale);
         if (localeModified) {
             firstDayOfWeek = null;
             lastDayOfWeek = null;
@@ -444,11 +464,6 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
             locale = Locale.getDefault();
         }
 
-        if (dateTimeFormatterPattern == null) {
-            dateTimeFormatter = DateTimeFormat.shortDate().withLocale(locale);
-        } else {
-            dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(locale);
-        }
         monthTexts = new DateFormatSymbols(locale).getMonths();
         shortMonthTexts = new DateFormatSymbols(locale).getShortMonths();
 
@@ -1285,7 +1300,11 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      * @return the {@link DateTimeFormatter} used.
      */
     public DateTimeFormatter getDateTimeFormatter() {
-        return dateTimeFormatter;
+        if (dateTimeFormatterPattern == null) {
+            return  DateTimeFormat.shortDate().withLocale(getLocale());
+        } else {
+            return  DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(getLocale());
+        }
     }
 
     /**
@@ -1300,11 +1319,12 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      *            the dateTimeFormatterPattern to set
      */
     public void setDateTimeFormatterPattern(final String dateTimeFormatterPattern) {
+        // When changing formatter pattern we need to reconvert textfield value
+        Object convertedValue = getConvertedValue();
         this.dateTimeFormatterPattern = dateTimeFormatterPattern;
-        if (dateTimeFormatterPattern == null) {
-            dateTimeFormatter = DateTimeFormat.shortDate().withLocale(getLocale());
-        } else {
-            dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(getLocale());
+       String newinternalValue = getConverter().convertToPresentation(convertedValue, String.class, getLocale());
+        if (!SharedUtil.equals(getInternalValue(), newinternalValue)) {
+            setConvertedValue(convertedValue);
         }
     }
 
