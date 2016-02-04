@@ -82,6 +82,8 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
     private boolean enabled = true;
     private boolean readOnly;
 
+    private boolean openCalendarOnFocusEnabled = false;
+
     /**
      * True when the popup calendar is open, else false
      */
@@ -100,6 +102,9 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
             public void onFocus(FocusEvent event) {
                 dateTextBox.addStyleName(VTextField.CLASSNAME + "-" + VTextField.CLASSNAME_FOCUS);
                 // Show calendar
+                if (isEnabled() && openCalendarOnFocusEnabled) {
+                    openCalendar();
+                }
             }
         });
         dateTextBox.addBlurHandler(new BlurHandler() {
@@ -406,6 +411,14 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
     @Override
     public void setTabIndex(int index) {
         dateTextBox.setTabIndex(index);
+    }
+
+    public boolean isOpenCalendarOnFocusEnabled() {
+        return openCalendarOnFocusEnabled;
+    }
+
+    public void setOpenCalendarOnFocusEnabled(boolean openCalendarOnFocusEnabled) {
+        this.openCalendarOnFocusEnabled = openCalendarOnFocusEnabled;
     }
 
 }

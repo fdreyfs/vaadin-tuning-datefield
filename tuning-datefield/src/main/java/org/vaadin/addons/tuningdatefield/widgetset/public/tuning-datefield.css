@@ -3,7 +3,7 @@
 	background: none;
 	border: none;
 }
-.v-datefield-textfield.gwt-TextBox-readonly {
+.tuning-datefield.v-readonly .v-datefield-textfield[readonly] {
 	background: none;
 	border: none;
 }

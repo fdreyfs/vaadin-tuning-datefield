@@ -122,6 +122,7 @@ public class TuningDateFieldConnector extends AbstractFieldConnector {
 
         getWidget().setDisplayedDateText(getState().getDisplayedDateText());
         getWidget().setCalendarOpen(getState().isCalendarOpen());
+        getWidget().setOpenCalendarOnFocusEnabled(getState().isOpenCalendarOnFocusEnabled());
         if (getState().isCalendarOpen()) {
             getWidget().getCalendar().setCalendarResolutionText(getState().getCalendarResolutionText());
             getWidget().getCalendar().setWeekHeaderNames(getState().getWeekHeaderNames());

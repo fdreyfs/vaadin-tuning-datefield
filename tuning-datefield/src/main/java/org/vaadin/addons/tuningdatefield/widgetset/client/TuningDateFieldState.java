@@ -47,6 +47,9 @@ public class TuningDateFieldState extends AbstractFieldState {
 
     // Only for day calendar
     private String[] weekHeaderNames;
+    
+    // Allow to open calendar on text field focus
+    private boolean openCalendarOnFocusEnabled;
 
     public TuningDateFieldState() {
 
@@ -162,6 +165,14 @@ public class TuningDateFieldState extends AbstractFieldState {
      */
     public void setWeekHeaderNames(String[] weekHeaderNames) {
         this.weekHeaderNames = weekHeaderNames;
+    }
+
+    public boolean isOpenCalendarOnFocusEnabled() {
+        return openCalendarOnFocusEnabled;
+    }
+
+    public void setOpenCalendarOnFocusEnabled(boolean openCalendarOnFocusEnabled) {
+        this.openCalendarOnFocusEnabled = openCalendarOnFocusEnabled;
     }
 
     

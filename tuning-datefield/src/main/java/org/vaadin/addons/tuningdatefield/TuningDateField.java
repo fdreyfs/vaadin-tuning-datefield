@@ -220,6 +220,9 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      * @see #setDateTextReadOnly(boolean)
      */
     private boolean dateTextReadOnly;
+    
+    // Open calendar of focus
+    private boolean openCalendarOnFocusEnabled;
 
     // Internal use : the month currently displayed in the calendar
     protected YearMonth yearMonthDisplayed;
@@ -582,6 +585,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         }
         ((TuningDateFieldState) getState()).setCalendarOpen(calendarOpen);
         ((TuningDateFieldState) getState()).setDateTextReadOnly(dateTextReadOnly);
+        ((TuningDateFieldState) getState()).setOpenCalendarOnFocusEnabled(openCalendarOnFocusEnabled);
 
         // We send calendar state only if it's open
         if (calendarOpen) {
@@ -1503,6 +1507,14 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      */
     public void setDisplayFixedNumberOfDayRows(boolean displayFixedNumberOfDayRows) {
         this.displayFixedNumberOfDayRows = displayFixedNumberOfDayRows;
+    }
+
+    public boolean isOpenCalendarOnFocusEnabled() {
+        return openCalendarOnFocusEnabled;
+    }
+
+    public void setOpenCalendarOnFocusEnabled(boolean openCalendarOnFocusEnabled) {
+        this.openCalendarOnFocusEnabled = openCalendarOnFocusEnabled;
     }
 
 }
