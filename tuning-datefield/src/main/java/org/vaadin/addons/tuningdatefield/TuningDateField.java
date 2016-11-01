@@ -48,7 +48,6 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.TuningDateFieldState;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarItem;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarResolution;
 
-import com.google.gwt.thirdparty.guava.common.base.Objects;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.converter.Converter;
@@ -448,7 +447,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         setDateTimeFormatterPattern(null);
         super.setLocale(locale);   
         // reinitialize static data based on locale (monthText, day names, etc...)
-        boolean localeModified = !Objects.equal(currentLocale, locale);
+        boolean localeModified = !(currentLocale == locale || (currentLocale != null && currentLocale.equals(locale))); 
         if (localeModified) {
             firstDayOfWeek = null;
             lastDayOfWeek = null;
