@@ -26,8 +26,8 @@ import org.vaadin.addons.tuningdatefield.event.DateChangeListener;
 import org.vaadin.addons.tuningdatefield.event.MonthChangeEvent;
 import org.vaadin.addons.tuningdatefield.event.MonthChangeListener;
 
-import com.google.gwt.thirdparty.guava.common.base.Strings;
-import com.google.gwt.thirdparty.guava.common.collect.Sets;
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
