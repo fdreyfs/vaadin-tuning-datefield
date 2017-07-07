@@ -16,7 +16,7 @@
 
 package org.vaadin.addons.tuningdatefield.event;
 
-import org.joda.time.YearMonth;
+import java.time.YearMonth;
 
 import com.vaadin.ui.Component;
 

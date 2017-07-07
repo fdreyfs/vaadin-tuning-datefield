@@ -53,9 +53,9 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.TextBox;
 import com.vaadin.client.ui.Field;
-import com.vaadin.client.ui.VCalendarPanel.FocusOutListener;
-import com.vaadin.client.ui.VOverlay;
+import com.vaadin.client.ui.VAbstractCalendarPanel.FocusOutListener;
 import com.vaadin.client.ui.VTextField;
+import com.vaadin.client.widgets.Overlay;
 
 /**
  * A text box with a toggle button that displays a {@link TuningDateFieldCalendarWidget}.
@@ -77,7 +77,7 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
 
     private TuningDateFieldCalendarWidget calendar;
 
-    private final VOverlay popup;
+    private final Overlay popup;
 
     private boolean enabled = true;
     private boolean readOnly;
@@ -139,7 +139,12 @@ public class TuningDateFieldWidget extends FlowPanel implements Field, CloseHand
         Roles.getTextboxRole().setAriaControlsProperty(dateTextBox.getElement(), Id.of(calendar.getElement()));
         Roles.getButtonRole().setAriaControlsProperty(calendarToggle.getElement(), Id.of(calendar.getElement()));
 
-        popup = new VOverlay(true, false, true);
+        popup = GWT.create(Overlay.class);
+        popup.setAutoHideEnabled(true);
+        popup.setModal(false);
+        
+//        boolean autoHide, boolean modal, boolean showShadow
+//                new VOverlay(true, false, true);
         popup.setOwner(this);
 
         popup.setWidget(calendar);

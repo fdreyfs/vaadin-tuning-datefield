@@ -20,16 +20,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Method;
 import java.text.DateFormatSymbols;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Locale;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.Days;
-import org.joda.time.LocalDate;
-import org.joda.time.Months;
-import org.joda.time.YearMonth;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.vaadin.addons.tuningdatefield.event.CalendarOpenEvent;
 import org.vaadin.addons.tuningdatefield.event.CalendarOpenListener;
 import org.vaadin.addons.tuningdatefield.event.DateChangeEvent;
@@ -48,10 +48,10 @@ import org.vaadin.addons.tuningdatefield.widgetset.client.TuningDateFieldState;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarItem;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarResolution;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.converter.Converter;
-import com.vaadin.data.util.converter.Converter.ConversionException;
+import com.vaadin.data.Converter;
+import com.vaadin.data.Result;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.ValueContext;
 import com.vaadin.data.validator.RangeValidator;
 import com.vaadin.event.FieldEvents.BlurEvent;
 import com.vaadin.event.FieldEvents.BlurListener;
@@ -59,10 +59,11 @@ import com.vaadin.event.FieldEvents.BlurNotifier;
 import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.event.FieldEvents.FocusNotifier;
+import com.vaadin.server.UserError;
 import com.vaadin.shared.MouseEventDetails;
+import com.vaadin.shared.Registration;
 import com.vaadin.shared.util.SharedUtil;
 import com.vaadin.ui.AbstractField;
-import com.vaadin.ui.DateField.UnparsableDateString;
 import com.vaadin.ui.TextField;
 import com.vaadin.util.ReflectTools;
 
@@ -160,9 +161,14 @@ import com.vaadin.util.ReflectTools;
  * @author Frederic.Dreyfus
  * 
  */
-public class TuningDateField extends AbstractField<String> implements BlurNotifier, FocusNotifier {
+public class TuningDateField extends AbstractField<LocalDate> implements BlurNotifier, FocusNotifier {
 
     private static final long serialVersionUID = 5261965803349750329L;
+
+    /**
+     * The value
+     */
+    private LocalDate value;
 
     /**
      * The cell item customizer which allows to customize calendar cells.
@@ -219,7 +225,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      * @see #setDateTextReadOnly(boolean)
      */
     private boolean dateTextReadOnly;
-    
+
     // Open calendar of focus
     private boolean openCalendarOnFocusEnabled;
 
@@ -244,6 +250,10 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      * True to dsiplay a fixed number of day rows in the calendar day resolution (even with a row of next month days)
      */
     private boolean displayFixedNumberOfDayRows;
+    
+    private String invalidValueErrorMessage = "Invalid value %s";
+    
+    private String outOfRangeErrorMessage = "Value %s is out of range";
 
     public TuningDateField() {
         init();
@@ -254,17 +264,6 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         this();
         setCaption(caption);
         init();
-    }
-
-    public TuningDateField(Property<?> dataSource) {
-        this(null, dataSource);
-    }
-
-    public TuningDateField(String caption, Property<?> dataSource) {
-        init();
-        setCaption(caption);
-        setPropertyDataSource(dataSource);
-
     }
 
     public TuningDateField(String caption, LocalDate value) {
@@ -280,50 +279,45 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         setYearMonthDisplayed(YearMonth.now());
         registerRpc();
 
-        addValueChangeListener(new ValueChangeListener() {
+        addValueChangeListener(evt -> fireEvent(new DateChangeEvent(TuningDateField.this,
+                (LocalDate) getConvertedValue())));
 
-            private static final long serialVersionUID = -8632906562585439165L;
-
-            @Override
-            public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
-                fireEvent(new DateChangeEvent(TuningDateField.this, (LocalDate) getConvertedValue()));
-            }
-        });
     }
+
+    private Converter<String, LocalDate> converter;
 
     /**
      * Initialize the {@link LocalDate} converter for the text field.
      */
     private void initConverter() {
 
-        Converter<String, LocalDate> converter = new Converter<String, LocalDate>() {
+        converter = new Converter<String, LocalDate>() {
 
             private static final long serialVersionUID = -2161506497954814519L;
 
             @Override
-            public LocalDate convertToModel(String value, Class<? extends LocalDate> targetType, Locale locale)
-                    throws com.vaadin.data.util.converter.Converter.ConversionException {
+            public Result<LocalDate> convertToModel(String value, ValueContext context) {
                 if (value == null) {
-                    return null;
+                    return Result.ok(null);
                 }
                 LocalDate modelValue = null;
                 try {
                     DateTimeFormatter dateTimeFormatter;
                     if (dateTimeFormatterPattern == null) {
-                        dateTimeFormatter = DateTimeFormat.shortDate().withLocale(locale);
+                        dateTimeFormatter = DateTimeFormatter.ISO_DATE.withLocale(context.getLocale().orElse(getLocale()));
                     } else {
-                        dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(locale);
+                        dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimeFormatterPattern, context.getLocale().orElse(getLocale()));
                     }
-                    modelValue = dateTimeFormatter.parseLocalDate(value);
+                    modelValue = dateTimeFormatter.parse(value, LocalDate::from);
                 } catch (IllegalArgumentException e) {
-                    throw new ConversionException("Cannot convert to model", e);
+                    return Result.error("Cannot convert to model");
                 }
-                return modelValue;
+                return Result.ok(modelValue);
             }
-
+            
+            // FIXME
             @Override
-            public String convertToPresentation(LocalDate value, Class<? extends String> targetType, Locale locale)
-                    throws com.vaadin.data.util.converter.Converter.ConversionException {
+            public String convertToPresentation(LocalDate value, ValueContext context) {
                 if (value == null) {
                     return null;
                 }
@@ -331,30 +325,28 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
                 try {
                     DateTimeFormatter dateTimeFormatter;
                     if (dateTimeFormatterPattern == null) {
-                        dateTimeFormatter = DateTimeFormat.shortDate().withLocale(locale);
+                        dateTimeFormatter = DateTimeFormatter.ISO_DATE.withLocale(context.getLocale().orElse(getLocale()));
                     } else {
-                        dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(locale);
+                        dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimeFormatterPattern, context.getLocale().orElse(getLocale()));
                     }
-                    presentationValue = dateTimeFormatter.print(value);
+                    presentationValue = dateTimeFormatter.format(value);
                 } catch (IllegalArgumentException e) {
-                    throw new ConversionException("Cannot convert to presentation", e);
+                    // Should never happen
+                    return null;
                 }
 
                 return presentationValue;
             }
 
-            @Override
-            public Class<LocalDate> getModelType() {
-                return LocalDate.class;
-            }
-
-            @Override
-            public Class<String> getPresentationType() {
-                return String.class;
-            }
-
         };
-        setConverter(converter);
+    }
+
+    public LocalDate getConvertedValue() {
+        return value;
+    }
+
+    public void setConvertedValue(LocalDate value) {
+        setValue(value);
     }
 
     protected void registerRpc() {
@@ -383,23 +375,26 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
             public void dateTextChanged(String dateText) {
                 try {
                     // First try to convert to model in order to check if text is parseable
+                    LocalDate dateFromText = null;
                     if (dateText != null) {
                         DateTimeFormatter dateTimeFormatter;
+                        
                         if (dateTimeFormatterPattern == null) {
-                            dateTimeFormatter = DateTimeFormat.shortDate().withLocale(getLocale());
+                            dateTimeFormatter = DateTimeFormatter.ISO_DATE.withLocale(getLocale());
                         } else {
-                            dateTimeFormatter = DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(getLocale());
+                            dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimeFormatterPattern, getLocale());
                         }
-                        dateTimeFormatter.parseLocalDate(dateText);
+                        dateFromText = dateTimeFormatter.parse(dateText, LocalDate::from);
                     }
 
                     // If parsing text is successful, set value
                     uiHasValidDateString = true;
                     setComponentError(null);
-                    setValue(dateText);
-                } catch (IllegalArgumentException e) {
+                    setValue(dateFromText);
+                } catch (IllegalArgumentException | DateTimeParseException e) {
                     // Date is not parseable, keep previous value
                     uiHasValidDateString = false;
+                    setComponentError(new UserError(String.format(invalidValueErrorMessage, dateText)));
                     markAsDirty();
                 }
             }
@@ -445,9 +440,9 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         Locale currentLocale = getLocale();
         // Reset dateTimeFormatPattern
         setDateTimeFormatterPattern(null);
-        super.setLocale(locale);   
+        super.setLocale(locale);
         // reinitialize static data based on locale (monthText, day names, etc...)
-        boolean localeModified = !(currentLocale == locale || (currentLocale != null && currentLocale.equals(locale))); 
+        boolean localeModified = !(currentLocale == locale || (currentLocale != null && currentLocale.equals(locale)));
         if (localeModified) {
             firstDayOfWeek = null;
             lastDayOfWeek = null;
@@ -496,15 +491,14 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         }
 
         removeDateRange();
-        dateRangeValidator = new RangeValidator<LocalDate>(errorMessage, LocalDate.class, startDate, endDate);
-        addValidator(dateRangeValidator);
+        dateRangeValidator = new RangeValidator<LocalDate>(errorMessage, Comparator.naturalOrder(), startDate, endDate);
 
         markAsDirty();
     }
 
     public void removeDateRange() {
         if (dateRangeValidator != null) {
-            removeValidator(dateRangeValidator);
+            dateRangeValidator = new RangeValidator<LocalDate>(null, Comparator.naturalOrder(), null, null);
         }
     }
 
@@ -550,7 +544,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         if (dateRangeValidator == null) {
             return true;
         } else {
-            return dateRangeValidator.isValid(date);
+            return !dateRangeValidator.apply(date, new ValueContext(getLocale())).isError();
         }
     }
 
@@ -563,7 +557,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      * @return <code>true</code> if date is a week-end, else returns <code>false</code>
      */
     protected boolean isWeekend(LocalDate date) {
-        return date.getDayOfWeek() >= DateTimeConstants.SATURDAY;
+        return date.getDayOfWeek().getValue() >= DayOfWeek.SATURDAY.getValue();
     }
 
     @Override
@@ -578,7 +572,8 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         // For days of first week that are in previous month
         // Get first day of week of last week's previous month
         if (getValue() != null) {
-            ((TuningDateFieldState) getState()).setDisplayedDateText(getValue());
+            ((TuningDateFieldState) getState()).setDisplayedDateText(converter.convertToPresentation(getValue(),
+                    new ValueContext(getLocale())));
         } else {
             ((TuningDateFieldState) getState()).setDisplayedDateText(null);
         }
@@ -593,7 +588,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
             if (calendarResolution.equals(CalendarResolution.DAY)) {
                 YearMonth yearMonthDisplayed = getYearMonthDisplayed();
-                String displayedMonthText = monthTexts[yearMonthDisplayed.getMonthOfYear() - 1];
+                String displayedMonthText = monthTexts[yearMonthDisplayed.getMonthValue() - 1];
                 ((TuningDateFieldState) getState()).setCalendarResolutionText(displayedMonthText + " "
                         + yearMonthDisplayed.getYear());
                 ((TuningDateFieldState) getState()).setWeekHeaderNames(weekDayNames);
@@ -612,27 +607,51 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
     }
 
+    // TODO To be checked
     @Override
-    public void validate() throws InvalidValueException {
-        /*
-         * To work properly in form we must throw exception if there is currently a parsing error in the datefield.
-         * Parsing error is kind of an internal validator.
-         */
-        if (!uiHasValidDateString) {
-            throw new UnparsableDateString(parseErrorMessage);
-        }
-        super.validate();
-    }
-
-    @Override
-    protected void setInternalValue(String newValue) {
+    protected void doSetValue(LocalDate value) {
         if (!uiHasValidDateString) {
             // clear component error and parsing flag
             setComponentError(null);
             uiHasValidDateString = true;
         }
 
-        super.setInternalValue(newValue);
+        this.value = value;
+        setComponentError(null);
+        if (!uiHasValidDateString) {
+            // clear component error and parsing flag
+            uiHasValidDateString = true;
+            setComponentError(new UserError(String.format(invalidValueErrorMessage, value)));
+        } else if (dateRangeValidator != null) {
+            ValidationResult result = dateRangeValidator.apply(value, new ValueContext(this));
+            if (result.isError()) {
+                setComponentError(new UserError(String.format(outOfRangeErrorMessage, value)));
+            }
+        }
+    }
+
+    @Override
+    public void setValue(LocalDate value) {
+        /*
+         * First handle special case when the client side component have a date string but value is null (e.g.
+         * unparsable date string typed in by the user). No value changes should happen, but we need to do some internal
+         * housekeeping.
+         */
+        if (value == null && !uiHasValidDateString) {
+            /*
+             * Side-effects of doSetValue clears possible previous strings and flags about invalid input.
+             */
+            doSetValue(null);
+
+            markAsDirty();
+            return;
+        }
+        super.setValue(value);
+    }
+
+    @Override
+    public LocalDate getValue() {
+        return value;
     }
 
     protected CalendarItem[] buildDayItems() {
@@ -640,11 +659,11 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         LocalDate calendarFirstDay = getCalendarFirstDay();
         LocalDate calendarLastDay = getCalendarLastDay();
 
-        LocalDate firstDayOfMonth = yearMonthDisplayed.toLocalDate(1);
-        LocalDate lastDayOfMonth = yearMonthDisplayed.toLocalDate(1).dayOfMonth().withMaximumValue();
+        LocalDate firstDayOfMonth = yearMonthDisplayed.atDay(1);
+        LocalDate lastDayOfMonth = yearMonthDisplayed.atDay(yearMonthDisplayed.lengthOfMonth());
 
         LocalDate today = LocalDate.now();
-        int numberOfDays = Days.daysBetween(calendarFirstDay, calendarLastDay).getDays() + 1;
+        int numberOfDays = (int) ChronoUnit.DAYS.between(calendarFirstDay, calendarLastDay) + 1;
         LocalDate date = calendarFirstDay;
 
         CalendarItem[] calendarItems = new CalendarItem[numberOfDays];
@@ -653,7 +672,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
             calendarItems[i] = new CalendarItem();
 
             calendarItems[i].setIndex(i);
-            if (date.getMonthOfYear() == yearMonthDisplayed.getMonthOfYear()) {
+            if (date.getMonthValue() == yearMonthDisplayed.getMonthValue()) {
                 calendarItems[i].setRelativeDateIndex(date.getDayOfMonth());
             } else {
                 calendarItems[i].setRelativeDateIndex(-date.getDayOfMonth());
@@ -723,18 +742,19 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
         YearMonth currentMonth = YearMonth.now();
 
-        int numberOfMonths = Months.monthsBetween(calendarFirstMonth, calendarLastMonth).getMonths() + 1;
+        int numberOfMonths = (int) ChronoUnit.MONTHS.between(calendarFirstMonth, calendarLastMonth) + 1;
 
         CalendarItem[] calendarItems = new CalendarItem[numberOfMonths];
         YearMonth month = calendarFirstMonth;
         LocalDate currentValue = getLocalDate();
-        YearMonth currentYearMonthValue = currentValue == null ? null : new YearMonth(currentValue.getYear(),
-                currentValue.getMonthOfYear());
+        
+        YearMonth currentYearMonthValue = currentValue == null ? null : YearMonth.of(currentValue.getYear(),
+                currentValue.getMonthValue());
         for (int i = 0; i < numberOfMonths; i++, month = month.plusMonths(1)) {
             calendarItems[i] = new CalendarItem();
 
             calendarItems[i].setIndex(i);
-            calendarItems[i].setRelativeDateIndex(month.getMonthOfYear());
+            calendarItems[i].setRelativeDateIndex(month.getMonthValue());
             calendarItems[i].setEnabled(true); // By default
 
             StringBuilder style = new StringBuilder("");
@@ -867,7 +887,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
     public LocalDate getLocalDate() {
         try {
             return (LocalDate) getConvertedValue();
-        } catch (ConversionException e) {
+        } catch (Exception e) {
             // In that case the value is invalid
             return null;
         }
@@ -879,10 +899,10 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      *         first column, we fill previous column items with days of previous month.
      */
     private LocalDate getCalendarFirstDay() {
-        LocalDate firstDayOfMonth = yearMonthDisplayed.toLocalDate(1);
+        LocalDate firstDayOfMonth = yearMonthDisplayed.atDay(1);
 
         int calendarFirstDayOfWeek = firstDayOfWeek;
-        int numberOfDaysSinceFirstDayOfWeek = (firstDayOfMonth.getDayOfWeek() - calendarFirstDayOfWeek + 7) % 7;
+        int numberOfDaysSinceFirstDayOfWeek = (firstDayOfMonth.getDayOfWeek().getValue() - calendarFirstDayOfWeek + 7) % 7;
 
         return firstDayOfMonth.minusDays(numberOfDaysSinceFirstDayOfWeek);
     }
@@ -892,16 +912,16 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      *         last column, we fill next column items with days of next month.
      */
     private LocalDate getCalendarLastDay() {
-        LocalDate lastDayOfMonth = yearMonthDisplayed.toLocalDate(1).dayOfMonth().withMaximumValue();
+        LocalDate lastDayOfMonth = yearMonthDisplayed.atDay(yearMonthDisplayed.lengthOfMonth());
 
         int calendarLastDayOfWeek = lastDayOfWeek;
 
-        int numberOfDaysUntilLastDayOfWeek = (calendarLastDayOfWeek - lastDayOfMonth.getDayOfWeek() + 7) % 7;
+        int numberOfDaysUntilLastDayOfWeek = (calendarLastDayOfWeek - lastDayOfMonth.getDayOfWeek().getValue() + 7) % 7;
 
         LocalDate lastDay = lastDayOfMonth.plusDays(numberOfDaysUntilLastDayOfWeek);
         if (isDisplayFixedNumberOfDayRows()) {
             // Always display 6 day rows
-            int numberOfDays = Days.daysBetween(getCalendarFirstDay(), lastDay).getDays() + 1;
+            int numberOfDays = (int) ChronoUnit.DAYS.between(getCalendarFirstDay(), lastDay) + 1;
             if (numberOfDays / 7 < 5) {
                 lastDay = lastDay.plusDays(14);
             } else if (numberOfDays / 7 < 6) {
@@ -914,11 +934,11 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
     }
 
     private YearMonth getCalendarFirstMonth() {
-        return new YearMonth(yearDisplayed, 1);
+        return YearMonth.of(yearDisplayed, 1);
     }
 
     private YearMonth getCalendarLastMonth() {
-        return new YearMonth(yearDisplayed, 12);
+        return YearMonth.of(yearDisplayed, 12);
 
     }
 
@@ -950,21 +970,21 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      */
     private LocalDate getSelectedDate(int dayOfMonth) {
         if (dayOfMonth >= 0) {
-            return yearMonthDisplayed.toLocalDate(dayOfMonth);
+            return yearMonthDisplayed.atDay(dayOfMonth);
         } else {
             if (dayOfMonth < -7) {
                 // previous month
-                return new LocalDate(yearMonthDisplayed.minusMonths(1).toLocalDate(-dayOfMonth));
+                return yearMonthDisplayed.minusMonths(1).atDay(-dayOfMonth);
             } else {
                 // next month
-                return new LocalDate(yearMonthDisplayed.plusMonths(1).toLocalDate(-dayOfMonth));
+                return yearMonthDisplayed.plusMonths(1).atDay(-dayOfMonth);
             }
         }
 
     }
 
     private YearMonth getSelectedMonth(int monthOfYear) {
-        return new YearMonth(yearDisplayed, monthOfYear);
+        return YearMonth.of(yearDisplayed, monthOfYear);
     }
 
     /**
@@ -974,7 +994,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         calendarResolution = CalendarResolution.DAY;
         LocalDate currentValue = getLocalDate();
         if (currentValue != null) {
-            yearMonthDisplayed = new YearMonth(currentValue);
+            yearMonthDisplayed = YearMonth.from(currentValue);
         } else if (yearMonthDisplayed == null) {
             yearMonthDisplayed = YearMonth.now();
         }
@@ -1015,7 +1035,7 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
             }
         } else if (calendarResolution.equals(CalendarResolution.YEAR)) {
             if (isYearEnabled(relativeDateIndex)) {
-                setYearMonthDisplayed(new YearMonth(relativeDateIndex, getYearMonthDisplayed().getMonthOfYear()));
+                setYearMonthDisplayed(YearMonth.of(relativeDateIndex, getYearMonthDisplayed().getMonthValue()));
                 setCalendarResolution(CalendarResolution.MONTH);
                 fireEvent(new ResolutionChangeEvent(this, Resolution.MONTH));
             }
@@ -1217,11 +1237,6 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
         removeListener(ResolutionChangeEvent.class, listener, RESOLUTION_CHANGE_METHOD);
     }
 
-    @Override
-    public Class<? extends String> getType() {
-        return String.class;
-    }
-
     // Used to rebuild transient variables
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
@@ -1304,9 +1319,9 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      */
     public DateTimeFormatter getDateTimeFormatter() {
         if (dateTimeFormatterPattern == null) {
-            return  DateTimeFormat.shortDate().withLocale(getLocale());
+            return DateTimeFormatter.ISO_DATE.withLocale(getLocale());
         } else {
-            return  DateTimeFormat.forPattern(dateTimeFormatterPattern).withLocale(getLocale());
+            return DateTimeFormatter.ofPattern(dateTimeFormatterPattern, getLocale());
         }
     }
 
@@ -1323,10 +1338,10 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
      */
     public void setDateTimeFormatterPattern(final String dateTimeFormatterPattern) {
         // When changing formatter pattern we need to reconvert textfield value
-        Object convertedValue = getConvertedValue();
+        LocalDate convertedValue = getConvertedValue();
         this.dateTimeFormatterPattern = dateTimeFormatterPattern;
-       String newinternalValue = getConverter().convertToPresentation(convertedValue, String.class, getLocale());
-        if (!SharedUtil.equals(getInternalValue(), newinternalValue)) {
+        String newinternalValue = converter.convertToPresentation(convertedValue, new ValueContext(getLocale()));
+        if (!SharedUtil.equals(getValue(), newinternalValue)) {
             setConvertedValue(convertedValue);
         }
     }
@@ -1425,59 +1440,13 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
     }
 
     @Override
-    public void addFocusListener(FocusListener listener) {
-        addListener(FocusEvent.EVENT_ID, FocusEvent.class, listener, FocusListener.focusMethod);
-    }
-
-    /**
-     * @deprecated As of 7.0, replaced by {@link #addFocusListener(FocusListener)}
-     **/
-    @Override
-    @Deprecated
-    public void addListener(FocusListener listener) {
-        addFocusListener(listener);
+    public Registration addFocusListener(FocusListener listener) {
+        return addListener(FocusEvent.EVENT_ID, FocusEvent.class, listener, FocusListener.focusMethod);
     }
 
     @Override
-    public void removeFocusListener(FocusListener listener) {
-        removeListener(FocusEvent.EVENT_ID, FocusEvent.class, listener);
-    }
-
-    /**
-     * @deprecated As of 7.0, replaced by {@link #removeFocusListener(FocusListener)}
-     **/
-    @Override
-    @Deprecated
-    public void removeListener(FocusListener listener) {
-        removeFocusListener(listener);
-    }
-
-    @Override
-    public void addBlurListener(BlurListener listener) {
-        addListener(BlurEvent.EVENT_ID, BlurEvent.class, listener, BlurListener.blurMethod);
-    }
-
-    /**
-     * @deprecated As of 7.0, replaced by {@link #addBlurListener(BlurListener)}
-     **/
-    @Override
-    @Deprecated
-    public void addListener(BlurListener listener) {
-        addBlurListener(listener);
-    }
-
-    @Override
-    public void removeBlurListener(BlurListener listener) {
-        removeListener(BlurEvent.EVENT_ID, BlurEvent.class, listener);
-    }
-
-    /**
-     * @deprecated As of 7.0, replaced by {@link #removeBlurListener(BlurListener)}
-     **/
-    @Override
-    @Deprecated
-    public void removeListener(BlurListener listener) {
-        removeBlurListener(listener);
+    public Registration addBlurListener(BlurListener listener) {
+        return addListener(BlurEvent.EVENT_ID, BlurEvent.class, listener, BlurListener.blurMethod);
     }
 
     @Override
@@ -1514,6 +1483,22 @@ public class TuningDateField extends AbstractField<String> implements BlurNotifi
 
     public void setOpenCalendarOnFocusEnabled(boolean openCalendarOnFocusEnabled) {
         this.openCalendarOnFocusEnabled = openCalendarOnFocusEnabled;
+    }
+
+    public String getInvalidValueErrorMessage() {
+        return invalidValueErrorMessage;
+    }
+
+    public void setInvalidValueErrorMessage(String invalidValueErrorMessage) {
+        this.invalidValueErrorMessage = invalidValueErrorMessage;
+    }
+
+    public String getOutOfRangeErrorMessage() {
+        return outOfRangeErrorMessage;
+    }
+
+    public void setOutOfRangeErrorMessage(String outOfRangeErrorMessage) {
+        this.outOfRangeErrorMessage = outOfRangeErrorMessage;
     }
 
 }

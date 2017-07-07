@@ -17,8 +17,8 @@
 package org.vaadin.addons.tuningdatefield.event;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
-import org.joda.time.LocalDate;
 import org.vaadin.addons.tuningdatefield.TuningDateField;
 
 /**

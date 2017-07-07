@@ -9,8 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import com.vaadin.server.GAEVaadinServlet;
 import com.vaadin.server.VaadinServlet;
 
 // web.xml because of google appengine 
@@ -44,16 +42,16 @@ public class DemoWebAppInitializer implements ServletContextListener {
 
     }
 
-    public static class MyGAEServlet extends GAEVaadinServlet {
-
-        private static final long serialVersionUID = 2122520422024963397L;
-
-        @Override
-        public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-            super.service(req, res);
-        }
-
-    }
+    // public static class MyGAEServlet extends GAEVaadinServlet {
+    //
+    // private static final long serialVersionUID = 2122520422024963397L;
+    //
+    // @Override
+    // public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+    // super.service(req, res);
+    // }
+    //
+    // }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {

@@ -17,11 +17,16 @@
 
 package org.vaadin.addons.tuningdatefield;
 
-import org.joda.time.YearMonth;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 import org.vaadin.addons.tuningdatefield.widgetset.client.InlineTuningDateFieldRpc;
 import org.vaadin.addons.tuningdatefield.widgetset.client.TuningDateFieldState;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarResolution;
 
+import com.vaadin.server.UserError;
 import com.vaadin.shared.MouseEventDetails;
 
 /**
@@ -52,7 +57,30 @@ public class InlineTuningDateField extends TuningDateField {
 
             @Override
             public void dateTextChanged(String dateText) {
-                setValue(dateText);
+                try {
+                    // First try to convert to model in order to check if text is parseable
+                    LocalDate dateFromText = null;
+                    if (dateText != null) {
+                        DateTimeFormatter dateTimeFormatter;
+                        
+                        if (dateTimeFormatterPattern == null) {
+                            dateTimeFormatter = DateTimeFormatter.ISO_DATE.withLocale(getLocale());
+                        } else {
+                            dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimeFormatterPattern, getLocale());
+                        }
+                        dateFromText = dateTimeFormatter.parse(dateText, LocalDate::from);
+                    }
+
+                    // If parsing text is successful, set value
+                    uiHasValidDateString = true;
+                    setComponentError(null);
+                    setValue(dateFromText);
+                } catch (IllegalArgumentException | DateTimeParseException e) {
+                    // Date is not parseable, keep previous value
+                    uiHasValidDateString = false;
+                    setComponentError(new UserError(String.format(getInvalidValueErrorMessage(), dateText)));
+                    markAsDirty();
+                }
             }
 
             @Override
@@ -111,7 +139,7 @@ public class InlineTuningDateField extends TuningDateField {
 
         if (calendarResolution.equals(CalendarResolution.DAY)) {
             YearMonth yearMonthDisplayed = getYearMonthDisplayed();
-            String displayedMonthText = monthTexts[yearMonthDisplayed.getMonthOfYear() - 1];
+            String displayedMonthText = monthTexts[yearMonthDisplayed.getMonthValue() - 1];
             getState().setCalendarResolutionText(displayedMonthText + " " + yearMonthDisplayed.getYear());
             getState().setWeekHeaderNames(weekDayNames);
             getState().setCalendarItems(buildDayItems());

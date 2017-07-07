@@ -17,9 +17,9 @@
 package org.vaadin.addons.tuningdatefield;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
-import org.joda.time.LocalDate;
-import org.joda.time.YearMonth;
 import org.vaadin.addons.tuningdatefield.widgetset.client.ui.calendar.CalendarResolution;
 
 /**

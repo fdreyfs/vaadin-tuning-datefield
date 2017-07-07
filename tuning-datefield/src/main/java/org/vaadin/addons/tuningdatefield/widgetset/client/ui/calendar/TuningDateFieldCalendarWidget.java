@@ -33,8 +33,8 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.vaadin.client.ui.VCalendarPanel.FocusOutListener;
-import com.vaadin.client.ui.VCalendarPanel.SubmitListener;
+import com.vaadin.client.ui.VAbstractCalendarPanel.FocusOutListener;
+import com.vaadin.client.ui.VAbstractCalendarPanel.SubmitListener;
 
 public class TuningDateFieldCalendarWidget extends SimplePanel {
 
@@ -91,7 +91,7 @@ public class TuningDateFieldCalendarWidget extends SimplePanel {
             fireEvent(new CalendarAttachedEvent());
         }
     }
-    
+
     public HandlerRegistration addCalendarItemClickHandler(CalendarItemClickHandler calendarItemClickHandler) {
         return addHandler(calendarItemClickHandler, CalendarItemClickEvent.getType());
     }
@@ -112,7 +112,7 @@ public class TuningDateFieldCalendarWidget extends SimplePanel {
     public HandlerRegistration addCalendarAttachedHandler(CalendarAttachedHandler calendarAttachedHandler) {
         return addHandler(calendarAttachedHandler, CalendarAttachedEvent.getType());
     }
-    
+
     /**
      * @return the focusOutListener
      */

@@ -1,8 +1,8 @@
 package org.vaadin.addons.tuningdatefield.demo;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
-import org.joda.time.LocalDate;
 
 public class Absence implements Serializable {
 
@@ -17,7 +17,7 @@ public class Absence implements Serializable {
     }
 
     public Absence(int year, int monthOfYear, int dayOfMonth, AbsenceDuration duration) {
-        this.day = new LocalDate(year, monthOfYear, dayOfMonth);
+        this.day = LocalDate.of(year, monthOfYear, dayOfMonth);
         this.duration = duration;
     }
 

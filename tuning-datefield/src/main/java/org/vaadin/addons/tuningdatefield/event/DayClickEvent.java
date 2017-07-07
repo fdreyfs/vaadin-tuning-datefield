@@ -16,7 +16,7 @@
 
 package org.vaadin.addons.tuningdatefield.event;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.ui.Component;

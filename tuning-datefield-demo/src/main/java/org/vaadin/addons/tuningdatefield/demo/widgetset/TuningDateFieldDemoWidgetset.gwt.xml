@@ -11,4 +11,6 @@
 
 	<inherits
 		name="org.vaadin.addons.tuningdatefield.widgetset.TuningDateFieldWidgetset" />
+<!-- 	<inherits -->
+<!-- 		name="org.vaadin.addons.imageupload.widgetset.ImageUploadWidgetset" /> -->
 </module>

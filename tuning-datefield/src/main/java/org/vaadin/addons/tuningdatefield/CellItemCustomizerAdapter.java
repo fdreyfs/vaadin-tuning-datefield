@@ -16,8 +16,9 @@
 
 package org.vaadin.addons.tuningdatefield;
 
-import org.joda.time.LocalDate;
-import org.joda.time.YearMonth;
+import java.time.LocalDate;
+import java.time.YearMonth;
+
 
 /**
  * Default implementation of {@link CellItemCustomizer} that enables all cells, does not return any tooltip or style.
