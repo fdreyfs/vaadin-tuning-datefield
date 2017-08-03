@@ -498,7 +498,7 @@ public class TuningDateField extends AbstractField<LocalDate> implements BlurNot
 
     public void removeDateRange() {
         if (dateRangeValidator != null) {
-            dateRangeValidator = new RangeValidator<LocalDate>(null, Comparator.naturalOrder(), null, null);
+            dateRangeValidator = new RangeValidator<LocalDate>("", Comparator.naturalOrder(), null, null);
         }
     }
 
