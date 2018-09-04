@@ -32,6 +32,8 @@ public class TuningDateFieldState extends AbstractFieldState {
 
     private boolean dateTextReadOnly;
 
+    private int forceUpdateTextBoxIndex;
+
     // //////////////////////
     // Data for calendar
     // //////////////////////
@@ -175,6 +177,11 @@ public class TuningDateFieldState extends AbstractFieldState {
         this.openCalendarOnFocusEnabled = openCalendarOnFocusEnabled;
     }
 
-    
+    public int getForceUpdateTextBoxIndex() {
+        return forceUpdateTextBoxIndex;
+    }
 
+    public void setForceUpdateTextBoxIndex(int forceUpdateTextBoxIndex) {
+        this.forceUpdateTextBoxIndex = forceUpdateTextBoxIndex;
+    }
 }

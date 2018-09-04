@@ -24,6 +24,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.DateTimeException;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
@@ -244,6 +245,9 @@ public class TuningDateField extends AbstractField<LocalDate> implements BlurNot
     // Internal use : true when UI has a parsable valid string
     boolean uiHasValidDateString = true;
 
+    // Internal use : used to force textBox update when multiple invalid parsed text is entered
+    int forceUpdateTextBoxIndex = 0;
+
     private String parseErrorMessage = "Date format not recognized";
 
     /**
@@ -384,14 +388,30 @@ public class TuningDateField extends AbstractField<LocalDate> implements BlurNot
                         } else {
                             dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimeFormatterPattern, getLocale());
                         }
-                        dateFromText = dateTimeFormatter.parse(dateText, LocalDate::from);
+                        try {
+                            dateFromText = dateTimeFormatter.parse(dateText, LocalDate::from);
+                        } catch (IllegalArgumentException | DateTimeParseException e) {
+
+                            // Give a chance to handle unparsable text
+                            // Default will throw an exception
+                            dateFromText = handleUnparsableDateString(dateText);
+
+                            // When a date is returned from handleUnparsableDateString we need to update client
+                            // The problem is when user enters multiple times unparsable text
+                            // The client is not updated because the returned JSON from server is the same as before
+                            // and it's been considered unmodified, thus the onStateChanged method is not called
+                            forceUpdateTextBoxIndex++;
+
+                            // Unuseful, but that should do the trick instead of the dirty hack above :(
+                            markAsDirty();
+                        }
                     }
 
                     // If parsing text is successful, set value
                     uiHasValidDateString = true;
                     setComponentError(null);
                     setValue(dateFromText);
-                } catch (IllegalArgumentException | DateTimeParseException e) {
+                } catch (IllegalArgumentException | DateTimeException e) {
                     // Date is not parseable, keep previous value
                     uiHasValidDateString = false;
                     setComponentError(new UserError(String.format(invalidValueErrorMessage, dateText)));
@@ -427,6 +447,19 @@ public class TuningDateField extends AbstractField<LocalDate> implements BlurNot
             }
 
         });
+    }
+
+    /**
+     * Allow to handle case where text could not be parsed. <br>
+     * Must throw a DateTimeException to notify the component it could not be parsed and set it as an error (default behavior)
+     *
+     * @param dateText the date as text
+     * @return the date
+     * @throws DateTimeException default behaviour when text could not be parsed
+     */
+    protected LocalDate handleUnparsableDateString(String dateText)
+            throws DateTimeException {
+        throw new DateTimeException(String.format(invalidValueErrorMessage, dateText));
     }
 
     /**
@@ -580,6 +613,9 @@ public class TuningDateField extends AbstractField<LocalDate> implements BlurNot
         ((TuningDateFieldState) getState()).setCalendarOpen(calendarOpen);
         ((TuningDateFieldState) getState()).setDateTextReadOnly(dateTextReadOnly);
         ((TuningDateFieldState) getState()).setOpenCalendarOnFocusEnabled(openCalendarOnFocusEnabled);
+
+        // Dirty hack to force client textBox update when entering multiple times unparsable text
+        ((TuningDateFieldState) getState()).setForceUpdateTextBoxIndex(forceUpdateTextBoxIndex);
 
         // We send calendar state only if it's open
         if (calendarOpen) {
