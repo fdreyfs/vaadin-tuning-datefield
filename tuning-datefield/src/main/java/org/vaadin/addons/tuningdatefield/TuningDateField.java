@@ -394,16 +394,29 @@ public class TuningDateField extends AbstractField<LocalDate> implements BlurNot
 
                             // Give a chance to handle unparsable text
                             // Default will throw an exception
-                            dateFromText = handleUnparsableDateString(dateText);
+                            Result<LocalDate> parsedDate = handleUnparsableDateString(dateText);
+                            if (parsedDate.isError()) {
+                                uiHasValidDateString = false;
+                                setComponentError(new UserError(parsedDate.getMessage().orElse(String.format(invalidValueErrorMessage, dateText))));
+                                markAsDirty();
+                            } else {
+                                parsedDate.ifOk(value -> {
+                                    // When a date is returned from handleUnparsableDateString we need to update client
+                                    // The problem is when user enters multiple times unparsable text
+                                    // The client is not updated because the returned JSON from server is the same as before
+                                    // and it's been considered unmodified, thus the onStateChanged method is not called
+                                    forceUpdateTextBoxIndex++;
 
-                            // When a date is returned from handleUnparsableDateString we need to update client
-                            // The problem is when user enters multiple times unparsable text
-                            // The client is not updated because the returned JSON from server is the same as before
-                            // and it's been considered unmodified, thus the onStateChanged method is not called
-                            forceUpdateTextBoxIndex++;
+                                    // Unuseful, but that should do the trick instead of the dirty hack above :(
+                                    markAsDirty();
 
-                            // Unuseful, but that should do the trick instead of the dirty hack above :(
-                            markAsDirty();
+                                    // If parsing text is successful, set value
+                                    uiHasValidDateString = true;
+                                    setComponentError(null);
+                                    setValue(value);
+                                });
+                            }
+                            return;
                         }
                     }
 
@@ -449,17 +462,8 @@ public class TuningDateField extends AbstractField<LocalDate> implements BlurNot
         });
     }
 
-    /**
-     * Allow to handle case where text could not be parsed. <br>
-     * Must throw a DateTimeException to notify the component it could not be parsed and set it as an error (default behavior)
-     *
-     * @param dateText the date as text
-     * @return the date
-     * @throws DateTimeException default behaviour when text could not be parsed
-     */
-    protected LocalDate handleUnparsableDateString(String dateText)
-            throws DateTimeException {
-        throw new DateTimeException(String.format(invalidValueErrorMessage, dateText));
+    protected Result<LocalDate> handleUnparsableDateString(String dateString) {
+        return Result.error(getParseErrorMessage());
     }
 
     /**
