@@ -831,7 +831,7 @@ public class TuningDateField extends AbstractField<LocalDate> implements BlurNot
 
             String calendarItemContent = null;
             if (cellItemCustomizer != null) {
-                calendarItemContent = cellItemCustomizer.renderMonth(currentYearMonthValue, this);
+                calendarItemContent = cellItemCustomizer.renderMonth(month, this);
             }
             // fallback to default value
             if (calendarItemContent == null) {
